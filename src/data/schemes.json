@@ -1,0 +1,446 @@
+{
+  "_about": "Seed data for Yojana Finder. Every scheme, rule, amount and link shown in the app comes from this file. Condition fields: see src/lib/engine.js. 'relevance' hides a scheme unless all are true; 'rules' decide eligible / check / not eligible. assumeIfUnknown = an exclusion we assume does not apply unless the user says it does.",
+  "schemes": [
+    {
+      "id": "pm-kisan",
+      "category": "farming",
+      "title": { "en": "₹6,000 a year for farmer families", "hi": "किसान परिवारों को साल के ₹6,000" },
+      "officialName": { "en": "PM-KISAN (Pradhan Mantri Kisan Samman Nidhi)", "hi": "पीएम-किसान (प्रधानमंत्री किसान सम्मान निधि)" },
+      "benefit": {
+        "kind": "cash_yearly", "amountYearly": 6000,
+        "short": { "en": "₹6,000 a year, in 3 instalments of ₹2,000", "hi": "साल के ₹6,000, ₹2,000 की 3 किस्तों में" },
+        "spoken": { "en": "6,000 rupees a year, in three instalments", "hi": "साल के 6,000 रुपये, तीन किस्तों में" }
+      },
+      "relevance": [
+        { "field": "occupation", "op": "eq", "value": "farmer", "why": { "en": "You are a farmer", "hi": "आप किसान हैं" } }
+      ],
+      "rules": [
+        { "field": "hasLand", "op": "eq", "value": true, "ask": true,
+          "why": { "en": "Your family owns farm land", "hi": "परिवार के नाम खेती की ज़मीन है" },
+          "check": { "en": "Is the farm land in your family's name?", "hi": "क्या खेती की ज़मीन परिवार के नाम है?" } },
+        { "field": "taxPayer", "op": "neq", "value": true, "assumeIfUnknown": true,
+          "why": { "en": "Not an income-tax payer", "hi": "इनकम टैक्स नहीं भरते" } }
+      ],
+      "eligibility": [
+        { "en": "Farmer families who own cultivable land", "hi": "जिन किसान परिवारों के नाम खेती की ज़मीन है" },
+        { "en": "Money comes straight to your bank account", "hi": "पैसा सीधे बैंक खाते में आता है" }
+      ],
+      "exclusions": [
+        { "en": "Income-tax payers", "hi": "इनकम टैक्स भरने वाले" },
+        { "en": "Government employees and pensioners with high pensions", "hi": "सरकारी कर्मचारी और ज़्यादा पेंशन वाले" }
+      ],
+      "documents": [
+        { "en": "Aadhaar card", "hi": "आधार कार्ड" },
+        { "en": "Land record (khatauni / jamabandi)", "hi": "ज़मीन के कागज़ (खतौनी / जमाबंदी)" },
+        { "en": "Bank passbook (account linked to Aadhaar)", "hi": "बैंक पासबुक (आधार से जुड़ा खाता)" },
+        { "en": "Mobile phone", "hi": "मोबाइल फ़ोन" }
+      ],
+      "apply": {
+        "online": { "url": "https://pmkisan.gov.in", "label": "pmkisan.gov.in",
+          "steps": [
+            { "en": "Open the site and choose 'New Farmer Registration'", "hi": "साइट खोलें और 'New Farmer Registration' चुनें" },
+            { "en": "Fill land and bank details, then complete e-KYC", "hi": "ज़मीन और बैंक की जानकारी भरें, फिर e-KYC पूरा करें" }
+          ] },
+        "offline": [
+          { "en": "Common Service Centre (CSC) in your village", "hi": "गाँव का कॉमन सर्विस सेंटर (CSC)" },
+          { "en": "Patwari or agriculture office", "hi": "पटवारी या कृषि विभाग का दफ़्तर" }
+        ]
+      }
+    },
+    {
+      "id": "pmfby",
+      "category": "insurance",
+      "title": { "en": "Crop insurance against crop loss", "hi": "फ़सल खराब होने पर फ़सल बीमा" },
+      "officialName": { "en": "PM Fasal Bima Yojana (PMFBY)", "hi": "प्रधानमंत्री फ़सल बीमा योजना" },
+      "benefit": {
+        "kind": "insurance",
+        "short": { "en": "You pay at most 2% (kharif), 1.5% (rabi), 5% (commercial crops)", "hi": "आप सिर्फ़ 2% (ख़रीफ़), 1.5% (रबी), 5% (व्यावसायिक फ़सल) तक प्रीमियम देते हैं" },
+        "spoken": { "en": "crop insurance; you pay at most 2 percent premium for kharif, 1.5 percent for rabi and 5 percent for commercial crops", "hi": "फ़सल बीमा; ख़रीफ़ के लिए ज़्यादा से ज़्यादा 2 प्रतिशत, रबी के लिए 1.5 प्रतिशत और व्यावसायिक फ़सल के लिए 5 प्रतिशत प्रीमियम" }
+      },
+      "relevance": [
+        { "field": "occupation", "op": "eq", "value": "farmer", "why": { "en": "You are a farmer", "hi": "आप किसान हैं" } }
+      ],
+      "rules": [],
+      "eligibility": [
+        { "en": "Farmers growing notified crops in notified areas", "hi": "अधिसूचित इलाक़े में अधिसूचित फ़सल उगाने वाले किसान" },
+        { "en": "Owners and tenant farmers can both join", "hi": "ज़मीन के मालिक और बटाई पर खेती करने वाले, दोनों" },
+        { "en": "Join before the season's last date", "hi": "मौसम की आख़िरी तारीख़ से पहले जुड़ें" }
+      ],
+      "exclusions": [],
+      "documents": [
+        { "en": "Aadhaar card", "hi": "आधार कार्ड" },
+        { "en": "Land record or tenancy paper", "hi": "ज़मीन के कागज़ या बटाई का कागज़" },
+        { "en": "Sowing certificate (what you planted)", "hi": "बुआई प्रमाण पत्र (कौन-सी फ़सल बोई)" },
+        { "en": "Bank passbook", "hi": "बैंक पासबुक" }
+      ],
+      "apply": {
+        "online": { "url": "https://pmfby.gov.in", "label": "pmfby.gov.in",
+          "steps": [
+            { "en": "Choose 'Farmer Corner' and apply for the season", "hi": "'Farmer Corner' चुनें और मौसम के लिए आवेदन करें" }
+          ] },
+        "offline": [
+          { "en": "Your bank branch (if you have a crop loan, you may already be covered)", "hi": "अपनी बैंक शाखा (फ़सल लोन है तो शायद पहले से जुड़े हों)" },
+          { "en": "Common Service Centre (CSC)", "hi": "कॉमन सर्विस सेंटर (CSC)" }
+        ]
+      }
+    },
+    {
+      "id": "kcc",
+      "category": "loan",
+      "title": { "en": "Low-interest crop loan card", "hi": "कम ब्याज वाला फ़सल लोन कार्ड" },
+      "officialName": { "en": "Kisan Credit Card (KCC)", "hi": "किसान क्रेडिट कार्ड (KCC)" },
+      "benefit": {
+        "kind": "loan",
+        "short": { "en": "Crop loan up to ₹3 lakh, effectively 4% interest if repaid on time", "hi": "₹3 लाख तक फ़सल लोन, समय पर चुकाने पर असल में 4% ब्याज" },
+        "spoken": { "en": "crop loan up to 3 lakh rupees, at effectively 4 percent interest if you repay on time", "hi": "3 लाख रुपये तक फ़सल लोन, समय पर चुकाने पर असल में 4 प्रतिशत ब्याज" }
+      },
+      "relevance": [
+        { "field": "occupation", "op": "eq", "value": "farmer", "why": { "en": "You are a farmer", "hi": "आप किसान हैं" } }
+      ],
+      "rules": [],
+      "eligibility": [
+        { "en": "Farmers, tenant farmers and sharecroppers", "hi": "किसान, बटाईदार और किराये पर खेती करने वाले" },
+        { "en": "Low interest only when you repay on time", "hi": "कम ब्याज तभी, जब समय पर चुकाएँ" }
+      ],
+      "exclusions": [],
+      "documents": [
+        { "en": "Aadhaar card or other ID", "hi": "आधार कार्ड या दूसरा पहचान पत्र" },
+        { "en": "Land record or tenancy paper", "hi": "ज़मीन के कागज़ या बटाई का कागज़" },
+        { "en": "Passport-size photo", "hi": "पासपोर्ट साइज़ फ़ोटो" }
+      ],
+      "apply": {
+        "online": null,
+        "offline": [
+          { "en": "Any bank branch: government, cooperative or regional rural bank", "hi": "किसी भी बैंक शाखा में: सरकारी, सहकारी या ग्रामीण बैंक" },
+          { "en": "Ask for the KCC form at the counter", "hi": "काउंटर पर KCC फ़ॉर्म माँगें" }
+        ]
+      }
+    },
+    {
+      "id": "vay-vandana",
+      "category": "health",
+      "title": { "en": "Free hospital treatment for people 70 and above", "hi": "70 साल से ऊपर वालों का मुफ़्त अस्पताल इलाज" },
+      "officialName": { "en": "Ayushman Vay Vandana Card (AB PM-JAY 70+)", "hi": "आयुष्मान वय वंदना कार्ड (70+)" },
+      "benefit": {
+        "kind": "insurance",
+        "short": { "en": "₹5 lakh a year of free hospital treatment", "hi": "हर साल ₹5 लाख तक मुफ़्त अस्पताल इलाज" },
+        "spoken": { "en": "free hospital treatment up to 5 lakh rupees a year", "hi": "हर साल 5 लाख रुपये तक मुफ़्त अस्पताल इलाज" }
+      },
+      "relevance": [],
+      "rules": [
+        { "field": "age", "op": "gte", "value": 70, "ask": true,
+          "why": { "en": "Age {age} — 70 or above", "hi": "उम्र {age} — 70 या उससे ज़्यादा" },
+          "check": { "en": "Is the age 70 or above?", "hi": "क्या उम्र 70 या उससे ज़्यादा है?" } }
+      ],
+      "eligibility": [
+        { "en": "Everyone aged 70 or above", "hi": "70 साल या उससे ज़्यादा उम्र के सभी लोग" },
+        { "en": "Any income — rich or poor", "hi": "कोई भी आमदनी हो — अमीर या ग़रीब" },
+        { "en": "Treatment at listed government and private hospitals", "hi": "सूची वाले सरकारी और निजी अस्पतालों में इलाज" }
+      ],
+      "exclusions": [],
+      "documents": [
+        { "en": "Aadhaar card (for e-KYC)", "hi": "आधार कार्ड (e-KYC के लिए)" },
+        { "en": "Mobile phone", "hi": "मोबाइल फ़ोन" }
+      ],
+      "apply": {
+        "online": { "url": "https://beneficiary.nha.gov.in", "label": "beneficiary.nha.gov.in",
+          "steps": [
+            { "en": "Log in with mobile number and complete Aadhaar e-KYC", "hi": "मोबाइल नंबर से लॉगिन करें और आधार e-KYC पूरा करें" },
+            { "en": "Download the Vay Vandana card", "hi": "वय वंदना कार्ड डाउनलोड करें" }
+          ] },
+        "offline": [
+          { "en": "Ayushman help desk at a listed hospital", "hi": "सूची वाले अस्पताल की आयुष्मान हेल्प डेस्क" },
+          { "en": "Common Service Centre (CSC)", "hi": "कॉमन सर्विस सेंटर (CSC)" }
+        ]
+      }
+    },
+    {
+      "id": "haryana-oasa",
+      "category": "pension",
+      "title": { "en": "Monthly old-age pension in Haryana", "hi": "हरियाणा में बुढ़ापा पेंशन हर महीने" },
+      "officialName": { "en": "Haryana Old Age Samman Allowance", "hi": "हरियाणा वृद्धावस्था सम्मान भत्ता" },
+      "benefit": {
+        "kind": "cash_monthly", "amountMonthly": 3200,
+        "short": { "en": "₹3,200 a month", "hi": "हर महीने ₹3,200" },
+        "spoken": { "en": "3,200 rupees every month", "hi": "हर महीने 3,200 रुपये" }
+      },
+      "relevance": [
+        { "field": "state", "op": "eq", "value": "haryana", "why": { "en": "Lives in Haryana", "hi": "हरियाणा में रहते हैं" } }
+      ],
+      "rules": [
+        { "field": "age", "op": "gte", "value": 60, "ask": true,
+          "why": { "en": "Age {age} — 60 or above", "hi": "उम्र {age} — 60 या उससे ज़्यादा" },
+          "check": { "en": "Is the age 60 or above?", "hi": "क्या उम्र 60 या उससे ज़्यादा है?" } },
+        { "field": "incomeMonthly", "op": "lte", "value": 25000, "ask": true,
+          "why": { "en": "{income} — family income within ₹3 lakh a year", "hi": "{income} — परिवार की आमदनी साल के ₹3 लाख के अंदर" },
+          "check": { "en": "Is family income up to ₹3 lakh a year?", "hi": "क्या परिवार की आमदनी साल के ₹3 लाख तक है?" } }
+      ],
+      "eligibility": [
+        { "en": "Residents of Haryana aged 60 or above", "hi": "हरियाणा के निवासी, उम्र 60 या ज़्यादा" },
+        { "en": "Family income up to ₹3 lakh a year", "hi": "परिवार की आमदनी साल के ₹3 लाख तक" },
+        { "en": "Needs a Family ID (Parivar Pehchan Patra)", "hi": "परिवार पहचान पत्र (Family ID) ज़रूरी" }
+      ],
+      "exclusions": [],
+      "documents": [
+        { "en": "Family ID (Parivar Pehchan Patra)", "hi": "परिवार पहचान पत्र (Family ID)" },
+        { "en": "Aadhaar card", "hi": "आधार कार्ड" },
+        { "en": "Bank passbook", "hi": "बैंक पासबुक" }
+      ],
+      "apply": {
+        "online": { "url": "https://saralharyana.gov.in", "label": "saralharyana.gov.in",
+          "steps": [
+            { "en": "Search 'Old Age Samman Allowance' and apply with Family ID", "hi": "'Old Age Samman Allowance' खोजें और Family ID से आवेदन करें" }
+          ] },
+        "offline": [
+          { "en": "Antyodaya Saral Kendra or Common Service Centre (CSC)", "hi": "अंत्योदय सरल केंद्र या कॉमन सर्विस सेंटर (CSC)" },
+          { "en": "District social welfare office", "hi": "ज़िला समाज कल्याण दफ़्तर" }
+        ]
+      }
+    },
+    {
+      "id": "pm-sym",
+      "category": "pension",
+      "title": { "en": "Pension of ₹3,000 a month after 60 for workers", "hi": "मज़दूरों को 60 के बाद हर महीने ₹3,000 पेंशन" },
+      "officialName": { "en": "PM Shram Yogi Maandhan (PM-SYM)", "hi": "प्रधानमंत्री श्रम योगी मान-धन" },
+      "benefit": {
+        "kind": "pension",
+        "short": { "en": "₹3,000 a month pension after age 60", "hi": "60 साल के बाद हर महीने ₹3,000 पेंशन" },
+        "spoken": { "en": "a pension of 3,000 rupees a month after age 60", "hi": "60 साल के बाद हर महीने 3,000 रुपये पेंशन" }
+      },
+      "relevance": [
+        { "field": "unorganised", "op": "eq", "value": true, "why": { "en": "Works as {occupation}", "hi": "{occupation} का काम करते हैं" } }
+      ],
+      "rules": [
+        { "field": "age", "op": "between", "value": [18, 40], "ask": true,
+          "why": { "en": "Age {age} — between 18 and 40", "hi": "उम्र {age} — 18 से 40 के बीच" },
+          "check": { "en": "Is the age between 18 and 40?", "hi": "क्या उम्र 18 से 40 के बीच है?" } },
+        { "field": "incomeMonthly", "op": "lte", "value": 15000, "ask": true,
+          "why": { "en": "{income} — within ₹15,000 a month", "hi": "{income} — महीने के ₹15,000 के अंदर" },
+          "check": { "en": "Do you earn up to ₹15,000 a month?", "hi": "क्या कमाई महीने के ₹15,000 तक है?" } },
+        { "field": "epf", "op": "neq", "value": true, "assumeIfUnknown": true,
+          "why": { "en": "Not in EPF or ESIC", "hi": "EPF या ESIC में नहीं" } }
+      ],
+      "eligibility": [
+        { "en": "Unorganised workers aged 18 to 40", "hi": "असंगठित मज़दूर, उम्र 18 से 40" },
+        { "en": "Earning up to ₹15,000 a month", "hi": "महीने की कमाई ₹15,000 तक" },
+        { "en": "You pay a small monthly amount based on your age; the government adds the same amount", "hi": "उम्र के हिसाब से आप हर महीने थोड़ा पैसा जमा करते हैं; सरकार भी उतना ही जोड़ती है" }
+      ],
+      "exclusions": [
+        { "en": "Members of EPF, ESIC or NPS", "hi": "EPF, ESIC या NPS के सदस्य" },
+        { "en": "Income-tax payers", "hi": "इनकम टैक्स भरने वाले" }
+      ],
+      "documents": [
+        { "en": "Aadhaar card", "hi": "आधार कार्ड" },
+        { "en": "Savings bank or Jan Dhan account passbook", "hi": "बचत या जन धन खाते की पासबुक" },
+        { "en": "Mobile phone", "hi": "मोबाइल फ़ोन" }
+      ],
+      "apply": {
+        "online": { "url": "https://maandhan.in", "label": "maandhan.in",
+          "steps": [
+            { "en": "Choose 'Self Enrollment' and log in with your mobile number", "hi": "'Self Enrollment' चुनें और मोबाइल नंबर से लॉगिन करें" }
+          ] },
+        "offline": [
+          { "en": "Common Service Centre (CSC) — they do it with your Aadhaar and bank passbook", "hi": "कॉमन सर्विस सेंटर (CSC) — आधार और बैंक पासबुक से वहीं हो जाता है" }
+        ]
+      }
+    },
+    {
+      "id": "e-shram",
+      "category": "worker",
+      "title": { "en": "Free worker ID card (e-Shram)", "hi": "मज़दूरों का मुफ़्त पहचान कार्ड (ई-श्रम)" },
+      "officialName": { "en": "e-Shram card (UAN for unorganised workers)", "hi": "ई-श्रम कार्ड (असंगठित मज़दूरों का UAN)" },
+      "benefit": {
+        "kind": "registration",
+        "short": { "en": "Free registration; a worker ID used for worker schemes", "hi": "मुफ़्त पंजीकरण; मज़दूर योजनाओं के लिए पहचान" },
+        "spoken": { "en": "a free worker ID card", "hi": "मुफ़्त मज़दूर पहचान कार्ड" }
+      },
+      "relevance": [
+        { "field": "unorganised", "op": "eq", "value": true, "why": { "en": "Works as {occupation}", "hi": "{occupation} का काम करते हैं" } }
+      ],
+      "rules": [
+        { "field": "age", "op": "between", "value": [16, 59], "ask": true,
+          "why": { "en": "Age {age} — between 16 and 59", "hi": "उम्र {age} — 16 से 59 के बीच" },
+          "check": { "en": "Is the age between 16 and 59?", "hi": "क्या उम्र 16 से 59 के बीच है?" } },
+        { "field": "epf", "op": "neq", "value": true, "assumeIfUnknown": true,
+          "why": { "en": "Not in EPF or ESIC", "hi": "EPF या ESIC में नहीं" } }
+      ],
+      "eligibility": [
+        { "en": "Unorganised workers aged 16 to 59", "hi": "असंगठित मज़दूर, उम्र 16 से 59" },
+        { "en": "Registration is free", "hi": "पंजीकरण मुफ़्त है" }
+      ],
+      "exclusions": [
+        { "en": "Members of EPF or ESIC", "hi": "EPF या ESIC के सदस्य" },
+        { "en": "Income-tax payers", "hi": "इनकम टैक्स भरने वाले" }
+      ],
+      "documents": [
+        { "en": "Aadhaar card", "hi": "आधार कार्ड" },
+        { "en": "Mobile phone linked to Aadhaar", "hi": "आधार से जुड़ा मोबाइल फ़ोन" },
+        { "en": "Bank passbook", "hi": "बैंक पासबुक" }
+      ],
+      "apply": {
+        "online": { "url": "https://eshram.gov.in", "label": "eshram.gov.in",
+          "steps": [
+            { "en": "Choose 'Register on e-Shram' and verify with your Aadhaar-linked mobile", "hi": "'Register on e-Shram' चुनें और आधार से जुड़े मोबाइल से पुष्टि करें" }
+          ] },
+        "offline": [
+          { "en": "Common Service Centre (CSC)", "hi": "कॉमन सर्विस सेंटर (CSC)" }
+        ]
+      }
+    },
+    {
+      "id": "pmsby",
+      "category": "insurance",
+      "title": { "en": "₹2 lakh accident insurance for ₹20 a year", "hi": "साल के ₹20 में ₹2 लाख का दुर्घटना बीमा" },
+      "officialName": { "en": "PM Suraksha Bima Yojana (PMSBY)", "hi": "प्रधानमंत्री सुरक्षा बीमा योजना" },
+      "benefit": {
+        "kind": "insurance",
+        "short": { "en": "₹2 lakh accident cover for ₹20 a year", "hi": "साल के ₹20 में ₹2 लाख दुर्घटना बीमा" },
+        "spoken": { "en": "2 lakh rupees accident cover for just 20 rupees a year", "hi": "सिर्फ़ 20 रुपये साल में 2 लाख रुपये का दुर्घटना बीमा" }
+      },
+      "relevance": [],
+      "rules": [
+        { "field": "age", "op": "between", "value": [18, 70], "ask": true,
+          "why": { "en": "Age {age} — between 18 and 70", "hi": "उम्र {age} — 18 से 70 के बीच" },
+          "check": { "en": "Is the age between 18 and 70?", "hi": "क्या उम्र 18 से 70 के बीच है?" } }
+      ],
+      "eligibility": [
+        { "en": "Ages 18 to 70 with a savings bank account", "hi": "उम्र 18 से 70, बचत बैंक खाता हो" },
+        { "en": "₹20 is taken from your account once a year", "hi": "साल में एक बार खाते से ₹20 कटते हैं" }
+      ],
+      "exclusions": [],
+      "documents": [
+        { "en": "Savings bank account", "hi": "बचत बैंक खाता" },
+        { "en": "Aadhaar card", "hi": "आधार कार्ड" }
+      ],
+      "apply": {
+        "online": { "url": "https://jansuraksha.gov.in", "label": "jansuraksha.gov.in",
+          "steps": [
+            { "en": "Or join through your bank's net banking or mobile app", "hi": "या अपने बैंक की नेट बैंकिंग या मोबाइल ऐप से जुड़ें" }
+          ] },
+        "offline": [
+          { "en": "Your bank branch or post office — fill the one-page form", "hi": "अपनी बैंक शाखा या डाकघर — एक पन्ने का फ़ॉर्म भरें" }
+        ]
+      }
+    },
+    {
+      "id": "pmjjby",
+      "category": "insurance",
+      "title": { "en": "₹2 lakh life insurance for ₹436 a year", "hi": "साल के ₹436 में ₹2 लाख का जीवन बीमा" },
+      "officialName": { "en": "PM Jeevan Jyoti Bima Yojana (PMJJBY)", "hi": "प्रधानमंत्री जीवन ज्योति बीमा योजना" },
+      "benefit": {
+        "kind": "insurance",
+        "short": { "en": "₹2 lakh life cover for ₹436 a year", "hi": "साल के ₹436 में ₹2 लाख जीवन बीमा" },
+        "spoken": { "en": "2 lakh rupees life cover for 436 rupees a year", "hi": "436 रुपये साल में 2 लाख रुपये का जीवन बीमा" }
+      },
+      "relevance": [],
+      "rules": [
+        { "field": "age", "op": "between", "value": [18, 50], "ask": true,
+          "why": { "en": "Age {age} — between 18 and 50", "hi": "उम्र {age} — 18 से 50 के बीच" },
+          "check": { "en": "Is the age between 18 and 50?", "hi": "क्या उम्र 18 से 50 के बीच है?" } }
+      ],
+      "eligibility": [
+        { "en": "Ages 18 to 50 with a savings bank account", "hi": "उम्र 18 से 50, बचत बैंक खाता हो" },
+        { "en": "₹436 is taken from your account once a year", "hi": "साल में एक बार खाते से ₹436 कटते हैं" }
+      ],
+      "exclusions": [],
+      "documents": [
+        { "en": "Savings bank account", "hi": "बचत बैंक खाता" },
+        { "en": "Aadhaar card", "hi": "आधार कार्ड" }
+      ],
+      "apply": {
+        "online": { "url": "https://jansuraksha.gov.in", "label": "jansuraksha.gov.in",
+          "steps": [
+            { "en": "Or join through your bank's net banking or mobile app", "hi": "या अपने बैंक की नेट बैंकिंग या मोबाइल ऐप से जुड़ें" }
+          ] },
+        "offline": [
+          { "en": "Your bank branch or post office — fill the one-page form", "hi": "अपनी बैंक शाखा या डाकघर — एक पन्ने का फ़ॉर्म भरें" }
+        ]
+      }
+    },
+    {
+      "id": "pmmvy",
+      "category": "mother",
+      "title": { "en": "Money for pregnant women", "hi": "गर्भवती महिलाओं को पैसे" },
+      "officialName": { "en": "PM Matru Vandana Yojana (PMMVY)", "hi": "प्रधानमंत्री मातृ वंदना योजना" },
+      "benefit": {
+        "kind": "cash_once", "amount": 5000,
+        "variants": [ { "if": { "field": "childOrder", "op": "eq", "value": 2 }, "amount": 6000,
+          "short": { "en": "₹6,000 if the second child is a girl", "hi": "दूसरी संतान बेटी हो तो ₹6,000" },
+          "spoken": { "en": "6,000 rupees if the second child is a girl", "hi": "दूसरी संतान बेटी हो तो 6,000 रुपये" } } ],
+        "short": { "en": "₹5,000 for the first child", "hi": "पहले बच्चे पर ₹5,000" },
+        "spoken": { "en": "5,000 rupees for the first child", "hi": "पहले बच्चे पर 5,000 रुपये" }
+      },
+      "relevance": [
+        { "field": "pregnant", "op": "eq", "value": true, "why": { "en": "You are expecting a baby", "hi": "आप माँ बनने वाली हैं" } }
+      ],
+      "rules": [
+        { "field": "childOrder", "op": "lte", "value": 2, "ask": true,
+          "why": { "en": "{childOrder}", "hi": "{childOrder}" },
+          "check": { "en": "Is this your first or second child?", "hi": "क्या यह पहला या दूसरा बच्चा है?" } },
+        { "field": "girlChild", "op": "eq", "value": true, "onlyIf": { "field": "childOrder", "op": "eq", "value": 2 },
+          "why": { "en": "Second child is a girl", "hi": "दूसरी संतान बेटी है" },
+          "check": { "en": "For a second child, money is given only if the baby is a girl", "hi": "दूसरे बच्चे पर पैसा तभी, जब बेटी हो" } }
+      ],
+      "eligibility": [
+        { "en": "Pregnant women and new mothers", "hi": "गर्भवती महिलाएँ और नई माँएँ" },
+        { "en": "₹5,000 for the first child, in instalments", "hi": "पहले बच्चे पर ₹5,000, किस्तों में" },
+        { "en": "₹6,000 if the second child is a girl", "hi": "दूसरी संतान बेटी हो तो ₹6,000" }
+      ],
+      "exclusions": [
+        { "en": "Women in regular government jobs who get similar benefits", "hi": "नियमित सरकारी नौकरी वाली महिलाएँ, जिन्हें ऐसा लाभ पहले से मिलता है" }
+      ],
+      "documents": [
+        { "en": "Mother and Child Protection (MCP) card", "hi": "माँ-बच्चा सुरक्षा (MCP) कार्ड" },
+        { "en": "Aadhaar card", "hi": "आधार कार्ड" },
+        { "en": "Bank or post office account passbook", "hi": "बैंक या डाकघर खाते की पासबुक" }
+      ],
+      "apply": {
+        "online": { "url": "https://pmmvy.wcd.gov.in", "label": "pmmvy.wcd.gov.in",
+          "steps": [
+            { "en": "Register as a citizen and fill the beneficiary form", "hi": "नागरिक के रूप में पंजीकरण करें और फ़ॉर्म भरें" }
+          ] },
+        "offline": [
+          { "en": "Anganwadi centre or ASHA worker", "hi": "आंगनवाड़ी केंद्र या आशा दीदी" },
+          { "en": "Health centre where you registered the pregnancy", "hi": "जिस स्वास्थ्य केंद्र में गर्भ का पंजीकरण हुआ" }
+        ]
+      }
+    },
+    {
+      "id": "onorc",
+      "category": "ration",
+      "title": { "en": "Collect your ration in any state", "hi": "किसी भी राज्य में अपना राशन लें" },
+      "officialName": { "en": "One Nation One Ration Card (ONORC)", "hi": "एक देश एक राशन कार्ड" },
+      "benefit": {
+        "kind": "service",
+        "short": { "en": "Collect ration at any ration shop in India", "hi": "भारत की किसी भी राशन दुकान से राशन" },
+        "spoken": { "en": "you can collect your ration at any ration shop in India", "hi": "भारत की किसी भी राशन दुकान से राशन ले सकते हैं" }
+      },
+      "relevance": [
+        { "field": "migrant", "op": "eq", "value": true, "why": { "en": "Working away from home state", "hi": "अपने राज्य से बाहर काम करते हैं" } }
+      ],
+      "rules": [
+        { "field": "hasRationCard", "op": "eq", "value": true,
+          "why": { "en": "Has a ration card", "hi": "राशन कार्ड है" },
+          "check": { "en": "Do you have a ration card back home?", "hi": "क्या आपके गाँव / घर में राशन कार्ड बना है?" } }
+      ],
+      "eligibility": [
+        { "en": "Anyone with a ration card under the food security law (NFSA)", "hi": "खाद्य सुरक्षा क़ानून (NFSA) वाला राशन कार्ड हो" },
+        { "en": "Give your thumbprint at the shop — no new card needed", "hi": "दुकान पर अँगूठा लगाएँ — नया कार्ड नहीं चाहिए" }
+      ],
+      "exclusions": [],
+      "documents": [
+        { "en": "Ration card number (or the card)", "hi": "राशन कार्ड नंबर (या कार्ड)" },
+        { "en": "Aadhaar linked to the ration card", "hi": "राशन कार्ड से जुड़ा आधार" }
+      ],
+      "apply": {
+        "online": { "url": "https://nfsa.gov.in", "label": "nfsa.gov.in",
+          "steps": [
+            { "en": "No form needed. The 'Mera Ration' app shows nearby shops", "hi": "कोई फ़ॉर्म नहीं। 'मेरा राशन' ऐप पास की दुकानें दिखाता है" }
+          ] },
+        "offline": [
+          { "en": "Any ration shop (fair price shop) near where you live now", "hi": "अभी जहाँ रहते हैं, वहाँ की कोई भी राशन दुकान" }
+        ]
+      }
+    }
+  ]
+}
