@@ -30,7 +30,7 @@ export function listenOnce({ lang, onInterim, onEnd, onError }) {
   };
   rec.onerror = (e) => onError?.(e.error);
   rec.onend = () => { if (ended) return; ended = true; onEnd?.((finalText.trim() || latest).trim()); };
-  try { rec.start(); } catch (err) { onError?.('start-failed'); ended = true; onEnd?.(''); }
+  try { rec.start(); } catch { onError?.('start-failed'); ended = true; onEnd?.(''); }
   return { stop: () => { try { rec.stop(); } catch { /* already stopped */ } }, abort: () => { ended = true; try { rec.abort(); } catch { /* noop */ } } };
 }
 

@@ -6,7 +6,7 @@ html { -webkit-text-size-adjust: 100%; }
 body {
   background: #F6F7FB;
   color: #1B1E2B;
-  font-family: 'Mukta', system-ui, sans-serif;
+  font-family: 'Mukta', 'Noto Sans Devanagari', system-ui, sans-serif;
   font-size: 18px;
   line-height: 1.5;
   margin: 0;

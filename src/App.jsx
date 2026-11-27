@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { t } from './lib/i18n.js';
 import { handleUtterance, answerDirect, initialConv, recompute, startWith } from './lib/conversation.js';
 import { evaluateAll, summarize, selectShown, SCHEMES } from './lib/engine.js';
@@ -120,7 +120,7 @@ export default function App() {
     }
     setConv({ ...c, profile });
     setMessages((ms) => ms.map((m, i) => (i === ms.length - 1 && m.role === 'bot' ? { ...m, understood: profile } : m)));
-  }, [lang, deliver]);
+  }, [lang]);
 
   const reset = useCallback(() => { stopSpeaking(); setConv(initialConv()); setMessages([]); setLastReply(''); }, []);
 
@@ -181,7 +181,7 @@ export default function App() {
   } else if (view.name === 'apps') {
     screen = <>
       <Header lang={lang} setLang={changeLang} title={t('myApps', lang)} onBack={back} />
-      <Apps lang={lang} apps={apps} onUpdate={updateApp} onRemove={removeApp} onOpen={(id) => go({ name: 'detail', id })} />
+      <Apps lang={lang} apps={apps} onUpdate={updateApp} onRemove={removeApp} onOpen={(id) => go({ name: 'detail', id })} onClearAll={() => { setApps({}); setDocs({}); }} />
     </>;
   } else if (view.name === 'call') {
     screen = <>

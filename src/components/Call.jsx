@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Phone, PhoneOff, Mic, MicOff } from 'lucide-react';
 import { t, EXAMPLES } from '../lib/i18n.js';
 import { handleUtterance, initialConv } from '../lib/conversation.js';
@@ -25,11 +25,12 @@ export function Call({ lang, onResults }) {
 
   useEffect(() => { mutedRef.current = muted; }, [muted]);
   useEffect(() => { logEnd.current?.scrollIntoView({ block: 'end' }); }, [log.length]);
+  const onCall = status !== 'idle' && status !== 'ended';
   useEffect(() => {
-    if (status === 'idle' || status === 'ended') return undefined;
+    if (!onCall) return undefined;
     const id = setInterval(() => setSecs((s) => s + 1), 1000);
     return () => clearInterval(id);
-  }, [status === 'idle' || status === 'ended']);
+  }, [onCall]);
   useEffect(() => () => { active.current = false; rec.current?.abort(); stopSpeaking(); }, []);
 
   const add = (who, text) => setLog((l) => [...l, { who, text, id: Date.now() + Math.random() }]);

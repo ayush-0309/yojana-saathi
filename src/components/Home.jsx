@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Mic, Square, ClipboardList, Phone, Send, Keyboard, RotateCcw, ArrowRight, LayoutGrid, MessageCircleQuestion, Quote } from 'lucide-react';
 import { t, EXAMPLES, PERSONAS, AGE_CHOICES } from '../lib/i18n.js';
 import { evaluateAll, selectShown } from '../lib/engine.js';

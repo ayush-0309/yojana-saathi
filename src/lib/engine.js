@@ -164,11 +164,6 @@ export function suggestField(all, profile, asked = 0) {
   return ASK_PRIORITY.find((f) => counts[f]) || null;
 }
 
-/** Kept for compatibility: the next field the old step-by-step flow would ask. */
-export function nextQuestionField(profile, askedCount = 0) {
-  return suggestField(evaluateAll(profile), profile, askedCount);
-}
-
 export function summarize(results) {
   const eligible = results.filter((r) => r.status === 'eligible');
   const check = results.filter((r) => r.status === 'check');

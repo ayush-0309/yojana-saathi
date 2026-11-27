@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { ChevronLeft, PersonStanding, PiggyBank, Wheat, ShieldCheck, HeartPulse, HandCoins, IdCard, CreditCard, Baby, ShoppingBasket, Square, Volume2, X } from 'lucide-react';
 import { t } from '../lib/i18n.js';
 import { useSpeaking, stopSpeaking, speak } from '../lib/speech.js';
@@ -71,6 +71,7 @@ export function Footer({ lang }) {
     <footer className="mx-auto max-w-md px-4 pb-6 pt-4 text-center text-small text-muted">
       <p className="font-semibold">{t('footer', lang)}</p>
       <p>{t('privacy', lang)}</p>
+      <p className="mt-1 text-[14px]">{t('dataAsOf', lang)}</p>
     </footer>
   );
 }

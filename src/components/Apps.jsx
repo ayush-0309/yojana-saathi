@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Check, Info, Trash2, ChevronRight } from 'lucide-react';
 import { t } from '../lib/i18n.js';
 import { SCHEMES } from '../lib/engine.js';
@@ -86,7 +86,8 @@ function AppCard({ id, app, lang, onUpdate, onRemove, onOpen }) {
   );
 }
 
-export function Apps({ lang, apps, onUpdate, onRemove, onOpen }) {
+export function Apps({ lang, apps, onUpdate, onRemove, onOpen, onClearAll }) {
+  const [confirm, setConfirm] = useState(false);
   const ids = Object.keys(apps).sort((a, b) => (apps[b].updated || 0) - (apps[a].updated || 0));
   return (
     <main className="mx-auto max-w-md space-y-4 px-4 pb-4 pt-4">
@@ -102,6 +103,13 @@ export function Apps({ lang, apps, onUpdate, onRemove, onOpen }) {
           ))}
         </ul>
       )}
+      <button
+        type="button"
+        onClick={() => { if (confirm) { onClearAll(); setConfirm(false); } else setConfirm(true); }}
+        className={`flex min-h-tap w-full items-center justify-center gap-2 rounded-2xl border-2 px-4 font-semibold ${confirm ? 'border-check bg-check-bg text-check-text' : 'border-line text-muted'}`}
+      >
+        <Trash2 size={18} aria-hidden="true" /> {confirm ? t('clearConfirm', lang) : t('clearData', lang)}
+      </button>
     </main>
   );
 }

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Bookmark, BookmarkCheck, Share2, Volume2, ExternalLink, Check, Globe, Store, ShieldCheck, CircleHelp, X } from 'lucide-react';
 import { t } from '../lib/i18n.js';
 import { SCHEMES, evaluateScheme } from '../lib/engine.js';

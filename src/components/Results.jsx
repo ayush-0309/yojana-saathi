@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ChevronRight, Check, CircleHelp, ChevronDown } from 'lucide-react';
 import { t, moneyLine } from '../lib/i18n.js';
 import { fill, inr } from '../lib/labels.js';

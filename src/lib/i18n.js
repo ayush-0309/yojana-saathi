@@ -75,6 +75,10 @@ export const UI = {
   callMode: { en: 'Call mode', hi: 'कॉल मोड' },
   home: { en: 'Home', hi: 'होम' },
   footer: { en: 'Independent helper. Confirm on the official portal before applying.', hi: 'स्वतंत्र सहायक। आवेदन से पहले सरकारी पोर्टल पर पक्का करें।' },
+  dataAsOf: { en: 'Scheme information as of November 2026.', hi: 'योजनाओं की जानकारी नवंबर 2026 तक की।' },
+  clearData: { en: 'Delete everything saved on this phone', hi: 'इस फ़ोन में सेव सब कुछ मिटाएँ' },
+  clearConfirm: { en: 'Tap again to delete', hi: 'मिटाने के लिए फिर दबाएँ' },
+  cleared: { en: 'Deleted.', hi: 'मिटा दिया।' },
   privacy: { en: 'We never ask for your Aadhaar number, OTP or bank details.', hi: 'हम कभी आधार नंबर, OTP या बैंक की जानकारी नहीं माँगते।' },
   demoTracker: { en: 'Demo tracker — saved only on this phone. Not connected to any government system.', hi: 'डेमो ट्रैकर — सिर्फ़ इसी फ़ोन में सेव। किसी सरकारी सिस्टम से जुड़ा नहीं।' },
   emptyApps: { en: 'Nothing saved yet. Save a scheme from its page to track it here.', hi: 'अभी कुछ सेव नहीं है। किसी योजना के पेज से सेव करें, फिर यहाँ ट्रैक करें।' },
@@ -164,10 +168,6 @@ export function questionText(field, p, lang) {
   }
 }
 
-export function sorryAnswer(field, p, lang) {
-  return (lang === 'hi' ? 'माफ़ कीजिए, समझ नहीं पाया। ' : 'Sorry, I did not catch that. ') + questionText(field, p, lang);
-}
-
 export function notUnderstood(lang) {
   return lang === 'hi'
     ? 'माफ़ कीजिए, मैं समझ नहीं पाया। अपना काम, राज्य और उम्र बताइए — जैसे "मैं बिहार का किसान हूँ, 45 साल का"।'
@@ -186,49 +186,6 @@ export function moneyLine(sum, lang) {
   if (sum.oneTime) parts.push(lang === 'hi' ? `एक बार ${inr(sum.oneTime)}` : `${inr(sum.oneTime)} one-time`);
   if (sum.insurance) parts.push(lang === 'hi' ? `${sum.insurance} बीमा सुरक्षा` : `${sum.insurance} insurance cover${sum.insurance > 1 ? 's' : ''}`);
   return joinList(parts, lang);
-}
-
-export function resultsReply(sum, p, lang) {
-  const self = !p.subject || p.subject === 'self';
-  const n = sum.eligible.length;
-  const c = sum.check.length;
-  if (!n && !c) return { text: t('noResults', lang), speech: t('noResults', lang) };
-  const titles = sum.eligible.map((r) => r.scheme.title[lang]);
-  const money = moneyLine(sum, lang);
-  let text;
-  if (lang === 'hi') {
-    const forWho = self ? '' : `${subj(p).rel.hi} के लिए `;
-    text = n
-      ? `${forWho}${n} योजना${n > 1 ? 'एँ' : ''} शायद मिल सकती ${n > 1 ? 'हैं' : 'है'}: ${joinList(titles, lang)}।` + (money ? ` कुल मिलाकर: ${money}।` : '')
-      : `${forWho}कोई योजना पक्की नहीं हुई।`;
-    if (c) text += ` ${c} योजना${c > 1 ? 'ओं' : ''} में एक बात पक्की करनी है।`;
-    text += ' आवेदन मुफ़्त है, किसी एजेंट की ज़रूरत नहीं।';
-  } else {
-    const forWho = self ? '' : `For your ${subj(p).rel.en}, `;
-    text = n
-      ? `${forWho}${n} scheme${n > 1 ? 's are' : ' is'} likely a match: ${joinList(titles, lang)}.` + (money ? ` Together: ${money}.` : '')
-      : `${forWho}no scheme is confirmed yet.`;
-    if (c) text += ` ${c} more need${c > 1 ? '' : 's'} one thing checked.`;
-    text += ' Applying is free — you do not need an agent.';
-  }
-  text = text.charAt(0).toUpperCase() + text.slice(1);
-  return { text, speech: text };
-}
-
-/** Longer spoken list for call mode. */
-export function callResultsSpeech(sum, p, lang) {
-  const n = sum.eligible.length;
-  if (!n && !sum.check.length) return t('noResults', lang);
-  const money = moneyLine(sum, lang);
-  const head = lang === 'hi'
-    ? `${n} योजना${n === 1 ? '' : 'एँ'} शायद मिल सकती ${n === 1 ? 'है' : 'हैं'}${money ? `, कुल ${money}` : ''}।`
-    : `${n} scheme${n === 1 ? ' is' : 's are'} likely a match${money ? `, worth ${money}` : ''}.`;
-  const ord = lang === 'hi' ? ['पहली', 'दूसरी', 'तीसरी', 'चौथी', 'पाँचवीं', 'छठी', 'सातवीं'] : ['First', 'Second', 'Third', 'Fourth', 'Fifth', 'Sixth', 'Seventh'];
-  const lines = sum.eligible.map((r, i) => `${ord[i] || i + 1}: ${r.scheme.title[lang]}, ${r.benefit.spoken[lang]}.`);
-  const checks = sum.check.map((r) => `${r.scheme.title[lang]}: ${r.checks[0].check[lang]}`);
-  const checkHead = lang === 'hi' ? 'एक बात पक्की करनी है — ' : 'One thing to check — ';
-  const free = lang === 'hi' ? 'आवेदन मुफ़्त है, किसी एजेंट की ज़रूरत नहीं।' : 'Applying is free; you do not need an agent.';
-  return [head, ...lines, checks.length ? checkHead + checks.join('. ') + '.' : '', free].filter(Boolean).join(' ');
 }
 
 // ---------- conversational replies ----------

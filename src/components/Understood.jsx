@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { MapPin, Briefcase, CalendarDays, User, Users, Sprout, Wallet, HeartHandshake, Plus, Pencil, Minus } from 'lucide-react';
 import { t } from '../lib/i18n.js';
 import { STATES, OCCUPATIONS, SUBJECTS, GENDERS, CHILD_ORDER, INCOME_CHOICES, incomeText, landText, ageText, stateText } from '../lib/labels.js';
@@ -93,7 +93,7 @@ export function UnderstoodCard({ profile, lang, onChange, editable = true, compa
   );
 }
 
-export function Stepper({ value, onChange, min = 0, max = 120, step = 1, big = 5, unit, lang }) {
+export function Stepper({ value, onChange, min = 0, max = 120, step = 1, big = 5, unit }) {
   const v = value ?? 40;
   const set = (n) => onChange(Math.max(min, Math.min(max, Math.round(n * 100) / 100)));
   const btn = 'flex h-14 min-w-[56px] items-center justify-center rounded-2xl border-2 border-line bg-white font-semibold text-brand';

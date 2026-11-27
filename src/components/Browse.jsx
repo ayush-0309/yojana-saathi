@@ -1,4 +1,3 @@
-import React from 'react';
 import { ChevronRight } from 'lucide-react';
 import { t } from '../lib/i18n.js';
 import { SCHEMES } from '../lib/engine.js';

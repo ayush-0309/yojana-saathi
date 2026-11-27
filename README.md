@@ -37,6 +37,14 @@ Speech input uses the Web Speech API (`hi-IN` / `en-IN`), which works in Chrome 
 
 No secret keys are used. The optional LLM extractor (below) stays off unless `VITE_LLM_EXTRACT_URL` is set at build time; without it the built-in Hindi/Hinglish/English parser handles everything.
 
+## Production readiness
+
+- **Works offline and installs like an app**: a service worker (generated at build time with the exact file list) precaches everything; `manifest.webmanifest` + icons enable "Add to home screen".
+- **No third-party requests**: the Mukta font is self-hosted; no analytics, no cookies. Speech recognition is done by the browser's own speech service.
+- **Security**: Content-Security-Policy in the built page; nginx adds nosniff, frame-deny, referrer and permissions headers, long caching for hashed files and a `/healthz` check used by the Docker `HEALTHCHECK`.
+- **Quality gates**: `npm run lint` (ESLint), `npm test` (34 tests: parser and eligibility logic, UI flows in jsdom, and axe-core WCAG 2.1 AA checks on every screen in Hindi and English), `npm audit` reports 0 vulnerabilities.
+- **Resilience**: an error screen with a "start again" button; storage never throws; "Delete everything saved on this phone" in My schemes.
+
 ## How it works
 
 | Piece | File |
