@@ -83,3 +83,34 @@ describe('parser details', () => {
     expect(parseUtterance('मैं माँ बनने वाली हूँ').subject).toBeUndefined();
   });
 });
+
+describe('questions about schemes', () => {
+  const ask = async (text, lang = 'hi') => (await handleUtterance(initialConv(), text, lang)).message;
+  it('answers amount, documents, apply and eligibility from seed data', async () => {
+    let m = await ask('पीएम किसान में कितना पैसा मिलता है?');
+    expect(m.scheme).toBe('pm-kisan');
+    expect(m.text).toContain('₹6,000');
+    m = await ask('What documents for e-Shram card?', 'en');
+    expect(m.scheme).toBe('e-shram');
+    expect(m.text).toContain('Aadhaar');
+    m = await ask('Ayushman vay vandana card kaise banega', 'en');
+    expect(m.scheme).toBe('vay-vandana');
+    expect(m.text).toContain('beneficiary.nha.gov.in');
+    m = await ask('जीवन ज्योति बीमा किसको मिलता है?');
+    expect(m.scheme).toBe('pmjjby');
+    expect(m.text).toContain('18');
+  });
+  it('is honest about status checks and out-of-scope questions', async () => {
+    let m = await ask('PM kisan ki kist nahi aayi', 'en');
+    expect(m.text).toMatch(/cannot see/);
+    m = await ask('आप क्या कर सकते हैं?');
+    expect(m.browse).toBe(true);
+    m = await ask('aaj mausam kaisa hai', 'en');
+    expect(m.text).toMatch(/did not understand/);
+  });
+  it('still treats descriptions as descriptions', async () => {
+    const r = await handleUtterance(initialConv(), 'मैं किसान हूँ, 45 साल का, हरियाणा से', 'hi');
+    expect(r.message.scheme).toBeUndefined();
+    expect(r.conv.profile.occupation).toBe('farmer');
+  });
+});

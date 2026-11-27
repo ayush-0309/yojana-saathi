@@ -97,8 +97,9 @@ export function landText(p, lang) {
   return '';
 }
 
+const ageNum = (age) => (typeof age === 'object' && age ? `${age.min}+` : age);
 export function ageText(age, lang) {
-  return lang === 'hi' ? `${age} साल` : `${age} years`;
+  return lang === 'hi' ? `${ageNum(age)} साल` : `${ageNum(age)} years`;
 }
 
 export function stateText(p, lang) {
@@ -111,7 +112,7 @@ export function stateText(p, lang) {
 /** Fill {age} {income} {occupation} {childOrder} placeholders from the profile. */
 export function fill(tpl, p, lang) {
   const out = tpl
-    .replace('{age}', p.age ?? '?')
+    .replace('{age}', p.age === undefined ? '?' : ageNum(p.age))
     .replace('{income}', incomeText(p.incomeMonthly, lang))
     .replace('{occupation}', (OCCUPATIONS[p.occupation]?.[lang] || '').toLowerCase())
     .replace('{childOrder}', CHILD_ORDER[p.childOrder]?.[lang] || '');

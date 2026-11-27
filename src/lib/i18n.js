@@ -11,7 +11,15 @@ export const UI = {
     en: 'Namaste! Tell me about yourself or a family member — your work, where you live and your age. I will tell you which government schemes fit.',
     hi: 'नमस्ते! अपने या परिवार के किसी सदस्य के बारे में बताइए — क्या काम करते हैं, कहाँ रहते हैं, उम्र कितनी है। मैं बताऊँगा कि कौन-सी सरकारी योजनाएँ काम की हैं।',
   },
-  trySaying: { en: 'Try saying', hi: 'ऐसे बोलकर देखें' },
+  trySaying: { en: 'Or tap the mic and say, for example', hi: 'या माइक दबाकर ऐसे बोलिए' },
+  whoFor: { en: 'Who are we finding schemes for?', hi: 'किसके लिए योजना ढूँढनी है?' },
+  hello: { en: 'Namaste!', hi: 'नमस्ते!' },
+  intro: { en: 'Tap a picture below, or press the big mic and tell me about yourself. I will find government schemes that fit.', hi: 'नीचे कोई तस्वीर दबाइए, या बड़ा माइक दबाकर अपने बारे में बताइए। मैं आपके काम की सरकारी योजनाएँ ढूँढूँगा।' },
+  askAbout: { en: 'Ask about a scheme', hi: 'किसी योजना के बारे में पूछें' },
+  browseAll: { en: 'See all schemes', hi: 'सभी योजनाएँ देखें' },
+  allSchemes: { en: 'All schemes', hi: 'सभी योजनाएँ' },
+  fullDetails: { en: 'See full details', hi: 'पूरी जानकारी देखें' },
+  browseIntro: { en: 'Every scheme this helper checks. Tap one to see who can get it, documents and how to apply.', hi: 'यह सहायक इन योजनाओं को देखता है। किसी पर दबाकर देखें — किसे मिलेगी, कागज़ और आवेदन कैसे करें।' },
   typeHere: { en: 'Type what you want to say', hi: 'जो कहना है, यहाँ लिखें' },
   send: { en: 'Send', hi: 'भेजें' },
   micUnavailable: { en: 'Microphone is not available here. Tap an example or type below.', hi: 'यहाँ माइक नहीं चल रहा। कोई उदाहरण दबाएँ या नीचे लिखें।' },
@@ -100,6 +108,13 @@ export const UI = {
     noVoice: { en: 'Call mode needs a browser that can listen (Chrome on Android works best). You can still tap the caller lines below.', hi: 'कॉल मोड के लिए सुनने वाला ब्राउज़र चाहिए (Android पर Chrome सबसे अच्छा)। आप नीचे की लाइनें दबा सकते हैं।' },
   },
 };
+
+export const PERSONAS = [
+  { id: 'farmer', icon: 'farming', delta: { occupation: 'farmer' }, en: 'Farmer', hi: 'किसान', sub: { en: 'I grow crops', hi: 'खेती करते हैं' } },
+  { id: 'elder', icon: 'elder', delta: { age: { min: 60, max: 110 } }, en: 'Elderly', hi: 'बुज़ुर्ग', sub: { en: '60 years or older', hi: '60 साल या ज़्यादा' } },
+  { id: 'worker', icon: 'worker', delta: { occupation: 'labourer' }, en: 'Worker', hi: 'मज़दूर', sub: { en: 'Daily wage, building, domestic work', hi: 'दिहाड़ी, निर्माण, घरेलू काम' } },
+  { id: 'mother', icon: 'mother', delta: { pregnant: true, gender: 'female' }, en: 'Pregnant woman', hi: 'गर्भवती महिला', sub: { en: 'Expecting a baby', hi: 'माँ बनने वाली' } },
+];
 
 export const t = (key, lang) => {
   const v = key.split('.').reduce((o, k) => o?.[k], UI);

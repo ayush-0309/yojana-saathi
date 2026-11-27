@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { t } from './lib/i18n.js';
-import { handleUtterance, answerDirect, initialConv, recompute } from './lib/conversation.js';
+import { handleUtterance, answerDirect, initialConv, recompute, startWith } from './lib/conversation.js';
 import { evaluateAll, summarize, SCHEMES } from './lib/engine.js';
 import { listenOnce, canListen, speak, stopSpeaking } from './lib/speech.js';
 import { useStored } from './lib/storage.js';
@@ -10,6 +10,7 @@ import { Results } from './components/Results.jsx';
 import { Detail } from './components/Detail.jsx';
 import { Apps } from './components/Apps.jsx';
 import { Call } from './components/Call.jsx';
+import { Browse } from './components/Browse.jsx';
 
 let nextId = 1;
 const withId = (m) => ({ ...m, id: nextId++ });
@@ -74,6 +75,11 @@ export default function App() {
     const r = await handleUtterance(convRef.current, text, lang, opts);
     setThinking(false);
     deliver(r);
+  }, [lang, deliver]);
+
+  const persona = useCallback((p) => {
+    stopSpeaking();
+    deliver(startWith(p.delta, lang), { userText: p[lang] });
   }, [lang, deliver]);
 
   const answer = useCallback((value, label) => {
@@ -171,6 +177,11 @@ export default function App() {
         onApplied={() => markApplied(view.id)}
       />
     </>;
+  } else if (view.name === 'all') {
+    screen = <>
+      <Header lang={lang} setLang={changeLang} title={t('allSchemes', lang)} onBack={back} />
+      <Browse lang={lang} onOpen={(id) => go({ name: 'detail', id })} />
+    </>;
   } else if (view.name === 'apps') {
     screen = <>
       <Header lang={lang} setLang={changeLang} title={t('myApps', lang)} onBack={back} />
@@ -192,6 +203,9 @@ export default function App() {
         thinking={thinking}
         micError={micError}
         onSend={send}
+        onPersona={persona}
+        onOpenScheme={(id) => go({ name: 'detail', id })}
+        onBrowse={() => go({ name: 'all' })}
         onAnswer={answer}
         onEdit={edit}
         onSeeResults={() => go({ name: 'results' })}

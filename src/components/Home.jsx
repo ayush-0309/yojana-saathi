@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Mic, Square, ClipboardList, Phone, Send, Keyboard, RotateCcw, ArrowRight } from 'lucide-react';
-import { t, EXAMPLES } from '../lib/i18n.js';
+import { Mic, Square, ClipboardList, Phone, Send, Keyboard, RotateCcw, ArrowRight, LayoutGrid, MessageCircleQuestion, Quote } from 'lucide-react';
+import { t, EXAMPLES, PERSONAS } from '../lib/i18n.js';
+import { QUESTION_EXAMPLES } from '../lib/qa.js';
 import { INCOME_CHOICES, CHILD_ORDER } from '../lib/labels.js';
 import { canListen } from '../lib/speech.js';
-import { ReadAloudButton } from './ui.jsx';
+import { ReadAloudButton, CategoryIcon } from './ui.jsx';
 import { UnderstoodCard, Stepper } from './Understood.jsx';
 
 export function MicButton({ listening, onClick, lang, size = 84 }) {
@@ -53,8 +54,17 @@ export function BottomBar({ lang, listening, onMic, onApps, onCall, appsCount })
   );
 }
 
-function AnswerPanel({ field, lang, onAnswer }) {
-  const [age, setAge] = useState(40);
+function BotAvatar() {
+  return (
+    <span className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-turmeric text-ink" aria-hidden="true">
+      <Mic size={18} strokeWidth={2.4} />
+    </span>
+  );
+}
+
+function AnswerPanel({ field, lang, onAnswer, profile }) {
+  const start = typeof profile?.age === 'object' && profile.age ? profile.age.min + 5 : 40;
+  const [age, setAge] = useState(start);
   const chip = 'min-h-tap rounded-2xl border-2 border-brand bg-white px-4 py-2 text-left font-semibold text-brand';
   const skip = <button type="button" className="min-h-tap rounded-2xl px-4 font-semibold text-muted underline" onClick={() => onAnswer('__skip', t('dontKnow', lang))}>{t('dontKnow', lang)}</button>;
   if (field === 'age') {
@@ -80,55 +90,126 @@ function AnswerPanel({ field, lang, onAnswer }) {
   );
 }
 
-function BotBubble({ m, lang, latest, onAnswer, onEdit, onSeeResults }) {
+function BotBubble({ m, lang, latest, onAnswer, onEdit, onSeeResults, onOpenScheme, onBrowse }) {
+  const wide = m.ask && latest;
+  const action = 'mt-3 flex min-h-tap w-full items-center justify-center gap-2 rounded-2xl px-4 font-semibold';
   return (
-    <li className="flex flex-col items-start gap-2">
-      <div className={`${m.ask && latest ? 'w-full' : 'max-w-[92%]'} rounded-3xl rounded-tl-md border border-line bg-white px-4 py-3 text-ink`}>
-        <div className="flex items-start gap-1">
-          <p className="flex-1 whitespace-pre-line">{m.text}</p>
-          <ReadAloudButton text={m.speech || m.text} lang={lang} className="-mr-2 -mt-2" />
+    <li className="flex flex-col gap-2">
+      <div className="flex items-start gap-2">
+        <BotAvatar />
+        <div className={`${wide ? 'flex-1' : 'max-w-[85%]'} min-w-0 rounded-3xl rounded-tl-md border border-line bg-white px-4 py-3 text-ink`}>
+          <div className="flex items-start gap-1">
+            <p className="flex-1 whitespace-pre-line">{m.text}</p>
+            <ReadAloudButton text={m.speech || m.text} lang={lang} className="-mr-2 -mt-2" />
+          </div>
+          {m.ask && latest && <p className="text-small text-muted">{t('whyAsk', lang)}</p>}
+          {m.ask && latest && <AnswerPanel field={m.ask} lang={lang} onAnswer={onAnswer} profile={m.understood} />}
+          {m.results && (
+            <button type="button" onClick={onSeeResults} className={`${action} bg-brand text-white`}>
+              {t('seeResults', lang)} <ArrowRight size={20} aria-hidden="true" />
+            </button>
+          )}
+          {m.scheme && (
+            <button type="button" onClick={() => onOpenScheme(m.scheme)} className={`${action} border-2 border-brand text-brand`}>
+              {t('fullDetails', lang)} <ArrowRight size={20} aria-hidden="true" />
+            </button>
+          )}
+          {m.browse && (
+            <button type="button" onClick={onBrowse} className={`${action} border-2 border-brand text-brand`}>
+              <LayoutGrid size={20} aria-hidden="true" /> {t('browseAll', lang)}
+            </button>
+          )}
         </div>
-        {m.ask && latest && <p className="text-small text-muted">{t('whyAsk', lang)}</p>}
-        {m.ask && latest && <AnswerPanel field={m.ask} lang={lang} onAnswer={onAnswer} />}
-        {m.results && (
-          <button type="button" onClick={onSeeResults} className="mt-3 flex min-h-tap w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 font-semibold text-white">
-            {t('seeResults', lang)} <ArrowRight size={20} aria-hidden="true" />
-          </button>
-        )}
       </div>
       {m.understood && latest && <div className="w-full"><UnderstoodCard profile={m.understood} lang={lang} onChange={onEdit} /></div>}
     </li>
   );
 }
 
-export function Home({ lang, messages, interim, listening, thinking, micError, onSend, onAnswer, onEdit, onSeeResults, onReset }) {
+function Welcome({ lang, onPersona, onSend, onBrowse }) {
+  const intro = `${t('hello', lang)} ${t('intro', lang)}`;
+  return (
+    <div className="space-y-6">
+      <section className="rounded-3xl bg-brand px-5 pb-5 pt-4 text-white">
+        <div className="flex items-start gap-2">
+          <h2 className="flex-1 text-[26px] font-bold leading-tight">{t('hello', lang)}</h2>
+          <ReadAloudButton text={intro} lang={lang} className="-mr-2 bg-white/10 text-white" />
+        </div>
+        <p className="mt-1 text-[18px] leading-snug opacity-95">{t('intro', lang)}</p>
+      </section>
+
+      <section aria-labelledby="who-for">
+        <h2 id="who-for" className="mb-3 text-[20px] font-bold text-brand">{t('whoFor', lang)}</h2>
+        <ul className="grid grid-cols-2 gap-3">
+          {PERSONAS.map((p) => (
+            <li key={p.id}>
+              <button
+                type="button"
+                onClick={() => onPersona(p)}
+                className="flex h-full min-h-[132px] w-full flex-col items-start gap-2 rounded-3xl border-2 border-line bg-white p-4 text-left transition-colors hover:border-brand focus-visible:border-brand"
+              >
+                <CategoryIcon category={p.icon} size={28} />
+                <span className="text-[19px] font-bold leading-tight text-ink">{p[lang]}</span>
+                <span className="text-small leading-snug text-muted">{p.sub[lang]}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section aria-labelledby="try-saying">
+        <h2 id="try-saying" className="mb-2 flex items-center gap-2 text-[18px] font-bold text-brand"><Mic size={20} aria-hidden="true" /> {t('trySaying', lang)}</h2>
+        <ul className="flex flex-col gap-2">
+          {EXAMPLES[lang].map((ex) => (
+            <li key={ex}>
+              <button type="button" onClick={() => onSend(ex, { fresh: true })} className="flex min-h-tap w-full items-start gap-3 rounded-2xl bg-white px-4 py-3 text-left shadow-[0_1px_0_#D9DCE8]">
+                <Quote size={18} className="mt-1 shrink-0 text-turmeric" aria-hidden="true" />
+                <span className="flex-1">{ex}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section aria-labelledby="ask-about">
+        <h2 id="ask-about" className="mb-2 flex items-center gap-2 text-[18px] font-bold text-brand"><MessageCircleQuestion size={20} aria-hidden="true" /> {t('askAbout', lang)}</h2>
+        <div className="flex flex-wrap gap-2">
+          {QUESTION_EXAMPLES[lang].map((q) => (
+            <button key={q} type="button" onClick={() => onSend(q)} className="min-h-tap rounded-2xl border border-line bg-white px-4 py-2 text-left">
+              {q}
+            </button>
+          ))}
+        </div>
+        <button type="button" onClick={onBrowse} className="mt-3 flex min-h-tap w-full items-center justify-center gap-2 rounded-2xl border-2 border-brand bg-white px-4 font-semibold text-brand">
+          <LayoutGrid size={20} aria-hidden="true" /> {t('browseAll', lang)}
+        </button>
+      </section>
+    </div>
+  );
+}
+
+export function Home({ lang, messages, interim, listening, thinking, micError, onSend, onPersona, onAnswer, onEdit, onSeeResults, onReset, onOpenScheme, onBrowse }) {
   const [typing, setTyping] = useState(!canListen);
   const [draft, setDraft] = useState('');
   const endRef = useRef(null);
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, [messages.length, interim, thinking]);
+  const started = messages.length > 0;
+  useEffect(() => { if (started) endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, [messages.length, interim, thinking, started]);
   useEffect(() => { if (micError) setTyping(true); }, [micError]);
   const lastBot = [...messages].reverse().find((m) => m.role === 'bot');
-  const showExamples = messages.filter((m) => m.role === 'user').length === 0;
 
   const submit = (e) => { e.preventDefault(); if (draft.trim()) { onSend(draft.trim()); setDraft(''); } };
 
   return (
     <main className="mx-auto max-w-md px-4 pb-4 pt-4">
-      <ul className="flex flex-col gap-3" aria-live="polite">
-        <li className="flex flex-col items-start">
-          <div className="max-w-[92%] rounded-3xl rounded-tl-md border border-line bg-white px-4 py-3">
-            <div className="flex items-start gap-1">
-              <p className="flex-1">{t('welcome', lang)}</p>
-              <ReadAloudButton text={t('welcome', lang)} lang={lang} className="-mr-2 -mt-2" />
-            </div>
-          </div>
-        </li>
+      {!started && <Welcome lang={lang} onPersona={onPersona} onSend={onSend} onBrowse={onBrowse} />}
+
+      <ul className={`flex flex-col gap-3 ${started ? '' : 'mt-4'}`} aria-live="polite">
         {messages.map((m) => m.role === 'user' ? (
           <li key={m.id} className="flex justify-end">
             <p className="max-w-[85%] rounded-3xl rounded-tr-md bg-brand px-4 py-3 text-white">{m.text}</p>
           </li>
         ) : (
-          <BotBubble key={m.id} m={m} lang={lang} latest={m === lastBot} onAnswer={onAnswer} onEdit={onEdit} onSeeResults={onSeeResults} />
+          <BotBubble key={m.id} m={m} lang={lang} latest={m === lastBot} onAnswer={onAnswer} onEdit={onEdit} onSeeResults={onSeeResults} onOpenScheme={onOpenScheme} onBrowse={onBrowse} />
         ))}
         {listening && (
           <li className="flex justify-end">
@@ -138,47 +219,27 @@ export function Home({ lang, messages, interim, listening, thinking, micError, o
           </li>
         )}
         {thinking && (
-          <li><p className="typing w-fit rounded-3xl border border-line bg-white px-4 py-3 text-muted" aria-label={t('thinking', lang)}><span>●</span> <span>●</span> <span>●</span></p></li>
+          <li className="flex items-start gap-2"><BotAvatar /><p className="typing w-fit rounded-3xl border border-line bg-white px-4 py-3 text-muted" aria-label={t('thinking', lang)}><span>●</span> <span>●</span> <span>●</span></p></li>
         )}
       </ul>
 
       {micError && <p role="status" className="mt-4 rounded-2xl border-l-4 border-check bg-check-bg px-4 py-3 text-check-text">{micError === 'not-allowed' ? t('micDenied', lang) : micError === 'no-speech' ? t('noSpeech', lang) : t('micUnavailable', lang)}</p>}
 
-      <section className="mt-5" aria-label={t('trySaying', lang)}>
-        {showExamples && <h2 className="mb-2 text-small font-semibold uppercase tracking-wide text-muted">{t('trySaying', lang)}</h2>}
-        {showExamples ? (
-          <ul className="flex flex-col gap-2">
-            {EXAMPLES[lang].map((ex) => (
-              <li key={ex}>
-                <button type="button" onClick={() => onSend(ex, { fresh: true })} className="flex min-h-tap w-full items-center gap-3 rounded-2xl border border-line bg-white px-4 py-2 text-left">
-                  <span aria-hidden="true" className="text-turmeric">“</span>
-                  <span className="flex-1">{ex}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={onReset} className="flex min-h-tap items-center gap-2 rounded-2xl border border-line bg-white px-4 font-semibold text-brand">
-              <RotateCcw size={20} aria-hidden="true" /> {t('startAgain', lang)}
-            </button>
-            {!typing && (
-              <button type="button" onClick={() => setTyping(true)} className="flex min-h-tap items-center gap-2 rounded-2xl px-4 font-semibold text-brand">
-                <Keyboard size={20} aria-hidden="true" /> {t('typeInstead', lang)}
-              </button>
-            )}
-          </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {started && (
+          <button type="button" onClick={onReset} className="flex min-h-tap items-center gap-2 rounded-2xl border border-line bg-white px-4 font-semibold text-brand">
+            <RotateCcw size={20} aria-hidden="true" /> {t('startAgain', lang)}
+          </button>
         )}
-      </section>
-
-      {showExamples && !typing && (
-        <button type="button" onClick={() => setTyping(true)} className="mt-2 flex min-h-tap items-center gap-2 rounded-2xl px-2 font-semibold text-brand">
-          <Keyboard size={20} aria-hidden="true" /> {t('typeInstead', lang)}
-        </button>
-      )}
+        {!typing && (
+          <button type="button" onClick={() => setTyping(true)} className="flex min-h-tap items-center gap-2 rounded-2xl px-3 font-semibold text-brand">
+            <Keyboard size={20} aria-hidden="true" /> {t('typeInstead', lang)}
+          </button>
+        )}
+      </div>
 
       {typing && (
-        <form onSubmit={submit} className="mt-4 flex gap-2">
+        <form onSubmit={submit} className="mt-3 flex gap-2">
           <label className="sr-only" htmlFor="say">{t('typeHere', lang)}</label>
           <input
             id="say"

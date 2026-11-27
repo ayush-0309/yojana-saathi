@@ -45,6 +45,7 @@ No secret keys are used. The optional LLM extractor (below) stays off unless `VI
 | Rule-based extractor for Devanagari Hindi, Hinglish and English (number words, lakh/hazaar, acres/killa/bigha, states and cities, “from X in Y”, verb gender, negation) | `src/lib/parser.js` |
 | Eligibility engine: `relevance` hides a scheme, `rules` decide eligible / check one thing / not a match; picks at most three follow-up questions | `src/lib/engine.js` |
 | Conversation state shared by chat and call mode | `src/lib/conversation.js` |
+| Direct questions about a scheme (amount, who can get it, documents, how to apply, status) answered from the seed data only | `src/lib/qa.js` |
 | Reply phrasing (only uses names and amounts from the seed data) and UI strings | `src/lib/i18n.js` |
 | Speech in and out, with Stop | `src/lib/speech.js` |
 | Optional LLM extraction through your own proxy (`VITE_LLM_EXTRACT_URL`); output is validated against an allowlist | `src/lib/llm.js` |

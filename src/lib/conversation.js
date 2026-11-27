@@ -3,6 +3,7 @@ import { parseUtterance, parseAnswer, countDetails } from './parser.js';
 import { evaluateAll, nextQuestionField, summarize, hasAnyDetail } from './engine.js';
 import { questionText, sorryAnswer, notUnderstood, resultsReply } from './i18n.js';
 import { extractWithLLM } from './llm.js';
+import { answerQuestion, capabilityText } from './qa.js';
 
 export const initialConv = () => ({ profile: {}, asked: 0, awaiting: null, phase: 'idle', retries: 0 });
 
@@ -70,6 +71,11 @@ export async function handleUtterance(conv, text, lang, opts = {}) {
   }
 
   let delta = parseUtterance(text);
+  // A direct question about a scheme (or about the helper) gets a direct answer.
+  const q = opts.fresh ? null : answerQuestion(text, lang);
+  if (q && (q.scheme ? countDetails(delta) < 2 : countDetails(delta) === 0)) {
+    return { conv, message: { role: 'bot', text: q.text, speech: q.speech, scheme: q.scheme, browse: q.browse } };
+  }
   if (countDetails(delta) === 0) {
     const llm = await extractWithLLM(text).catch(() => null);
     if (llm) delta = llm;
@@ -78,10 +84,15 @@ export async function handleUtterance(conv, text, lang, opts = {}) {
   const base = startFresh ? {} : conv.profile;
   const asked = startFresh ? 0 : conv.asked;
   if (countDetails(delta) === 0 && !hasAnyDetail(base)) {
-    const s = notUnderstood(lang);
-    return { conv: { ...initialConv() }, message: { role: 'bot', text: s, speech: s } };
+    const s = `${notUnderstood(lang)} ${capabilityText(lang)}`;
+    return { conv: { ...initialConv() }, message: { role: 'bot', text: s, speech: notUnderstood(lang), browse: true } };
   }
   return askOrFinish(mergeProfile(base, delta), asked, lang);
+}
+
+/** Start from a tapped "who is this for" tile. */
+export function startWith(delta, lang) {
+  return askOrFinish(mergeProfile({}, delta), 0, lang);
 }
 
 /** Re-run results after the person edits a chip. */

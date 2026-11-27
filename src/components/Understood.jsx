@@ -111,7 +111,7 @@ const Secondary = ({ onClick, children }) => (
 );
 
 export function FieldSheet({ field, profile, lang, onSave, onClose }) {
-  const [age, setAge] = useState(profile.age ?? 40);
+  const [age, setAge] = useState(typeof profile.age === 'number' ? profile.age : profile.age?.min ? profile.age.min + 5 : 40);
   const [acres, setAcres] = useState(profile.landAcres ?? 1);
   const [sit, setSit] = useState({
     pregnant: !!profile.pregnant, childOrder: profile.childOrder, widow: !!profile.widow,
