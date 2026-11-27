@@ -1,4 +1,4 @@
-# Yojana Finder · योजना फ़ाइंडर
+# Yojana साथी (Yojana Saathi)
 
 A voice-first, mobile-first prototype that helps people in India find government schemes they likely qualify for by describing their situation aloud in Hindi, Hinglish or English. It runs entirely in the browser, needs no login and no backend.
 

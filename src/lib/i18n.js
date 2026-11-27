@@ -2,7 +2,7 @@
 import { SUBJECTS, inr } from './labels.js';
 
 export const UI = {
-  appName: { en: 'Yojana Finder', hi: 'योजना फ़ाइंडर' },
+  appName: { en: 'Yojana साथी', hi: 'Yojana साथी' },
   tagline: { en: 'Find government schemes by speaking', hi: 'बोलकर सरकारी योजनाएँ खोजें' },
   speak: { en: 'बोलिए (Speak)', hi: 'बोलिए (Speak)' },
   listening: { en: 'Listening… tap to stop', hi: 'सुन रहा हूँ… रोकने के लिए दबाएँ' },
@@ -90,8 +90,8 @@ export const UI = {
     speaking: { en: 'Speaking…', hi: 'बोल रहा हूँ…' },
     ended: { en: 'Call ended', hi: 'कॉल ख़त्म हुई' },
     greet: {
-      en: 'Namaste, this is Yojana Finder. Tell me about yourself: your work, your state and your age.',
-      hi: 'नमस्ते, यह योजना फ़ाइंडर है। अपने बारे में बताइए: क्या काम करते हैं, किस राज्य में रहते हैं, और उम्र कितनी है।',
+      en: 'Namaste, this is Yojana Saathi. Tell me about yourself: your work, your state and your age.',
+      hi: 'नमस्ते, यह योजना साथी है। अपने बारे में बताइए: क्या काम करते हैं, किस राज्य में रहते हैं, और उम्र कितनी है।',
     },
     again: { en: 'You can tell me about another person, or say bye to end the call.', hi: 'आप किसी और के बारे में बता सकते हैं, या कॉल ख़त्म करने के लिए बाय बोलिए।' },
     bye: { en: 'Thank you. Remember, applying is free. Goodbye!', hi: 'धन्यवाद। याद रखिए, आवेदन मुफ़्त है। नमस्ते!' },

@@ -1,5 +1,5 @@
 {
-  "_about": "Seed data for Yojana Finder. Every scheme, rule, amount and link shown in the app comes from this file. Condition fields: see src/lib/engine.js. 'relevance' hides a scheme unless all are true; 'rules' decide eligible / check / not eligible. assumeIfUnknown = an exclusion we assume does not apply unless the user says it does.",
+  "_about": "Seed data for Yojana Saathi. Every scheme, rule, amount and link shown in the app comes from this file. Condition fields: see src/lib/engine.js. 'relevance' hides a scheme unless all are true; 'rules' decide eligible / check / not eligible. assumeIfUnknown = an exclusion we assume does not apply unless the user says it does.",
   "schemes": [
     {
       "id": "pm-kisan",
