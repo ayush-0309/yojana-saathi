@@ -2,6 +2,8 @@
 
 A voice-first, mobile-first prototype that helps people in India find government schemes they likely qualify for by describing their situation aloud in Hindi, Hinglish or English. It runs entirely in the browser, needs no login and no backend.
 
+**Live demo:** https://ayush-0309.github.io/yojana-saathi/ (open in Chrome to use the microphone)
+
 ## Run
 
 ### One command (Docker)
@@ -20,6 +22,14 @@ npm run dev      # http://localhost:5173
 npm test         # parser + eligibility tests for all four demo scenarios, in Hindi and English
 npm run build
 ```
+
+### Publish to GitHub Pages
+
+```bash
+npm run deploy:pages
+```
+
+This builds the app and pushes `dist/` to the `gh-pages` branch, which GitHub Pages serves.
 
 ### Voice notes
 
