@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { t } from './lib/i18n.js';
 import { handleUtterance, answerDirect, initialConv, recompute, startWith } from './lib/conversation.js';
-import { evaluateAll, summarize, SCHEMES } from './lib/engine.js';
+import { evaluateAll, summarize, selectShown, SCHEMES } from './lib/engine.js';
 import { listenOnce, canListen, speak, stopSpeaking } from './lib/speech.js';
 import { useStored } from './lib/storage.js';
 import { Header, Footer, SpeakingPill } from './components/ui.jsx';
@@ -60,13 +60,13 @@ export default function App() {
   }, []);
 
   // ---- conversation ----
-  const deliver = useCallback((r, { userText, navigate = true } = {}) => {
+  // Answers stay in the chat; the full results page is one tap away.
+  const deliver = useCallback((r, { userText } = {}) => {
     setConv(r.conv);
     setMessages((ms) => [...ms, ...(userText ? [withId({ role: 'user', text: userText })] : []), withId(r.message)]);
     if (r.summary) setLastReply(r.message.text);
     speak(r.message.speech, lang);
-    if (r.summary && navigate) setTimeout(() => go({ name: 'results' }), 350);
-  }, [lang, go]);
+  }, [lang]);
 
   const send = useCallback(async (text, opts = {}) => {
     setMicError((e) => (e === 'no-speech' ? null : e));
@@ -79,13 +79,13 @@ export default function App() {
 
   const persona = useCallback((p) => {
     stopSpeaking();
-    deliver(startWith(p.delta, lang), { userText: p[lang] });
+    deliver(startWith(p.delta, lang, p.topics || []), { userText: p[lang] });
   }, [lang, deliver]);
 
   const answer = useCallback((value, label) => {
     const c = convRef.current;
-    if (!c.awaiting) return;
-    deliver(answerDirect(c, c.awaiting, value, lang), { userText: label });
+    if (!c.suggest) return;
+    deliver(answerDirect(c, c.suggest, value, lang), { userText: label });
   }, [lang, deliver]);
 
   const toggleMic = useCallback(() => {
@@ -111,15 +111,11 @@ export default function App() {
   const edit = useCallback((delta) => {
     const c = convRef.current;
     const profile = applyEdit(c.profile, delta);
-    if (c.phase === 'asking' && c.awaiting && delta[c.awaiting] !== undefined) {
-      deliver(answerDirect({ ...c, profile }, c.awaiting, delta[c.awaiting], lang), { navigate: true });
-      return;
-    }
     if (c.phase === 'results') {
-      const r = recompute(profile, lang);
-      setConv({ ...r.conv, asked: c.asked });
+      const r = recompute(profile, lang, c.topics);
+      setConv({ ...r.conv, asked: c.asked, suggest: null });
       setLastReply(r.message.text);
-      setMessages((ms) => ms.map((m, i) => (i === ms.length - 1 && m.role === 'bot' ? { ...m, understood: profile, text: r.message.text, speech: r.message.speech } : m)));
+      setMessages((ms) => ms.map((m, i) => (i === ms.length - 1 && m.role === 'bot' ? { ...m, understood: profile, text: r.message.text, speech: r.message.speech, suggest: null } : m)));
       return;
     }
     setConv({ ...c, profile });
@@ -132,9 +128,9 @@ export default function App() {
   const changeLang = (l) => { stopSpeaking(); setLang(l); };
 
   // ---- results ----
-  const all = useMemo(() => evaluateAll(conv.profile), [conv.profile]);
-  const summary = useMemo(() => summarize(all), [all]);
-  const reply = useMemo(() => (conv.phase === 'results' ? recompute(conv.profile, lang).message.text : lastReply), [conv, lang, lastReply]);
+  const all = useMemo(() => evaluateAll(conv.profile, conv.topics), [conv.profile, conv.topics]);
+  const summary = useMemo(() => summarize(selectShown(all)), [all]);
+  const reply = useMemo(() => (conv.phase === 'results' ? recompute(conv.profile, lang, conv.topics).message.speech : lastReply), [conv, lang, lastReply]);
 
   // ---- saved / applied ----
   const toggleSave = (id) => setApps((a) => {

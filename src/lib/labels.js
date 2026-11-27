@@ -97,7 +97,7 @@ export function landText(p, lang) {
   return '';
 }
 
-const ageNum = (age) => (typeof age === 'object' && age ? `${age.min}+` : age);
+const ageNum = (age) => (typeof age === 'object' && age ? (age.max >= 110 ? `${age.min}+` : `${age.min}–${age.max}`) : age);
 export function ageText(age, lang) {
   return lang === 'hi' ? `${ageNum(age)} साल` : `${ageNum(age)} years`;
 }

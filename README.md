@@ -44,7 +44,7 @@ No secret keys are used. The optional LLM extractor (below) stays off unless `VI
 | Seed data: schemes, machine-readable rules, documents, official links | `src/data/schemes.json` |
 | Rule-based extractor for Devanagari Hindi, Hinglish and English (number words, lakh/hazaar, acres/killa/bigha, states and cities, “from X in Y”, verb gender, negation) | `src/lib/parser.js` |
 | Eligibility engine: `relevance` hides a scheme, `rules` decide eligible / check one thing / not a match; picks at most three follow-up questions | `src/lib/engine.js` |
-| Conversation state shared by chat and call mode | `src/lib/conversation.js` |
+| Conversation shared by chat and call mode. Answer first: every message gets matching schemes straight away ("I just had a daughter" → girl-child schemes), and a missing detail is offered as one optional question, never required | `src/lib/conversation.js` |
 | Direct questions about a scheme (amount, who can get it, documents, how to apply, status) answered from the seed data only | `src/lib/qa.js` |
 | Reply phrasing (only uses names and amounts from the seed data) and UI strings | `src/lib/i18n.js` |
 | Speech in and out, with Stop | `src/lib/speech.js` |

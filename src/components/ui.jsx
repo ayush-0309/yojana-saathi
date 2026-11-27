@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { ChevronLeft, PersonStanding, Wheat, ShieldCheck, HeartPulse, HandCoins, IdCard, CreditCard, Baby, ShoppingBasket, Square, Volume2, X } from 'lucide-react';
+import { ChevronLeft, PersonStanding, PiggyBank, Wheat, ShieldCheck, HeartPulse, HandCoins, IdCard, CreditCard, Baby, ShoppingBasket, Square, Volume2, X } from 'lucide-react';
 import { t } from '../lib/i18n.js';
 import { useSpeaking, stopSpeaking, speak } from '../lib/speech.js';
 
 export const CATEGORY_ICON = {
   farming: Wheat, insurance: ShieldCheck, health: HeartPulse, pension: HandCoins,
-  worker: IdCard, loan: CreditCard, mother: Baby, ration: ShoppingBasket, elder: PersonStanding,
+  worker: IdCard, loan: CreditCard, mother: Baby, ration: ShoppingBasket, elder: PersonStanding, savings: PiggyBank,
 };
 
 export function CategoryIcon({ category, tone = 'brand', size = 26 }) {

@@ -9,7 +9,7 @@ export function whyLines(r, profile, lang) {
   return r.why.map((w) => ({ text: fill(w.cond.why[lang], profile, lang), assumed: w.assumed }));
 }
 
-function SchemeRow({ r, profile, lang, onOpen }) {
+export function SchemeRow({ r, profile, lang, onOpen }) {
   const ok = r.status === 'eligible';
   const s = r.scheme;
   return (

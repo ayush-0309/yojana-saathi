@@ -10,16 +10,35 @@ export const UNORGANISED = new Set([
   'street_vendor', 'driver', 'artisan',
 ]);
 
-// Which missing detail to ask about first when several would change results.
-const ASK_PRIORITY = ['age', 'childOrder', 'incomeMonthly', 'hasLand'];
+// What people ask about → which schemes to bring up even if a detail is unknown.
+export const TOPIC_SCHEMES = {
+  insurance: ['pmsby', 'pmjjby', 'vay-vandana', 'pmfby'],
+  health: ['vay-vandana'],
+  pension: ['haryana-oasa', 'pm-sym'],
+  loan: ['kcc'],
+  ration: ['onorc'],
+  savings: ['ssy', 'pm-sym'],
+  girl: ['ssy', 'pmmvy'],
+  baby: ['pmmvy', 'ssy'],
+  farming: ['pm-kisan', 'pmfby', 'kcc'],
+  worker: ['e-shram', 'pm-sym', 'pmsby'],
+  elder: ['vay-vandana', 'haryana-oasa'],
+};
+
+// Which missing detail to offer to ask about first.
+const ASK_PRIORITY = ['childOrder', 'age', 'incomeMonthly', 'hasLand'];
 
 export function getValue(profile, field) {
   if (field === 'unorganised') {
     if (!profile.occupation) return undefined;
     return UNORGANISED.has(profile.occupation);
   }
+  if (field === 'maternity') {
+    if (profile.pregnant || profile.recentBirth) return true;
+    return undefined;
+  }
   // Someone who is pregnant is of working age, even if the exact age is unknown.
-  if (field === 'age' && (profile.age === undefined || profile.age === null) && profile.pregnant) return { min: 15, max: 55 };
+  if (field === 'age' && (profile.age === undefined || profile.age === null) && profile.pregnant && !profile.subject) return { min: 15, max: 55 };
   return profile[field];
 }
 
@@ -68,17 +87,29 @@ export function resolveBenefit(scheme, profile) {
   return variant ? { ...b, ...variant, variants: undefined } : b;
 }
 
-export function evaluateScheme(scheme, profile) {
+export function topicSchemeIds(topics = []) {
+  return new Set(topics.flatMap((tp) => TOPIC_SCHEMES[tp] || []));
+}
+
+/**
+ * status: eligible | check | no | hidden
+ * topical: the person asked about this kind of scheme, so an unknown
+ * "who is it for" detail becomes a check instead of hiding the scheme.
+ */
+export function evaluateScheme(scheme, profile, topical = false) {
   const skipped = profile.skipped || [];
   const why = [];
   const checks = [];
   const failed = [];
   const askFields = [];
+  const base = { scheme, topical, benefit: resolveBenefit(scheme, profile) };
 
   for (const c of scheme.relevance) {
     const r = evalCond(c, profile);
-    if (r !== true) return { scheme, status: 'hidden', why, checks, failed, askFields };
-    why.push({ cond: c, assumed: false });
+    if (r === false) return { ...base, status: 'hidden', why, checks, failed, askFields };
+    if (r === true) why.push({ cond: c, assumed: false });
+    else if (topical) checks.push(c);
+    else return { ...base, status: 'hidden', why, checks, failed, askFields };
   }
   for (const c of scheme.rules) {
     const r = evalCond(c, profile);
@@ -94,22 +125,48 @@ export function evaluateScheme(scheme, profile) {
   let status = 'eligible';
   if (failed.length) status = 'no';
   else if (checks.length) status = 'check';
-  return { scheme, status, why, checks, failed, askFields, benefit: resolveBenefit(scheme, profile) };
+  return { ...base, status, why, checks, failed, askFields };
 }
 
-export function evaluateAll(profile) {
-  return SCHEMES.map((s) => evaluateScheme(s, profile));
+export function evaluateAll(profile, topics = []) {
+  const ids = topicSchemeIds(topics);
+  return SCHEMES.map((s) => evaluateScheme(s, profile, ids.has(s.id)));
 }
 
-/** The single most useful missing detail, or null. */
-export function nextQuestionField(profile, askedCount = 0) {
-  if (askedCount >= MAX_FOLLOW_UPS) return null;
+/**
+ * What to show the person: schemes that fit what they told us, plus schemes
+ * they asked about. Everyone-schemes (insurance by age) only show once they
+ * clearly fit, so a vague answer does not bury the useful ones.
+ */
+export function isShown(r) {
+  if (r.status !== 'eligible' && r.status !== 'check') return false;
+  if (r.topical || r.scheme.relevance.length > 0) return true;
+  return r.status === 'eligible';
+}
+
+export function selectShown(all) {
+  const shown = all.filter(isShown);
+  // likely ones before ones to check; within each, asked-about schemes first
+  const rank = (r) => (r.status === 'eligible' ? 0 : 2) + (r.topical ? 0 : 1);
+  return shown.map((r, i) => ({ r, i })).sort((a, b) => rank(a.r) - rank(b.r) || a.i - b.i).map((x) => x.r);
+}
+
+/** The single most useful missing detail to offer to ask about, or null. */
+export function suggestField(all, profile, asked = 0) {
+  if (asked >= MAX_FOLLOW_UPS) return null;
   const counts = {};
-  for (const r of evaluateAll(profile)) {
+  for (const r of all) {
     if (r.status !== 'check') continue;
+    // only details that would change something we show, or bring in an everyone-scheme
+    if (!isShown(r) && r.scheme.relevance.length > 0) continue;
     for (const f of r.askFields) counts[f] = (counts[f] || 0) + 1;
   }
   return ASK_PRIORITY.find((f) => counts[f]) || null;
+}
+
+/** Kept for compatibility: the next field the old step-by-step flow would ask. */
+export function nextQuestionField(profile, askedCount = 0) {
+  return suggestField(evaluateAll(profile), profile, askedCount);
 }
 
 export function summarize(results) {

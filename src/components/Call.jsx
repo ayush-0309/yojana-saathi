@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Phone, PhoneOff, Mic, MicOff } from 'lucide-react';
-import { t, EXAMPLES, callResultsSpeech } from '../lib/i18n.js';
+import { t, EXAMPLES } from '../lib/i18n.js';
 import { handleUtterance, initialConv } from '../lib/conversation.js';
 import { isEndCall } from '../lib/parser.js';
 import { canListen, listenOnce, speak, stopSpeaking } from '../lib/speech.js';
@@ -73,12 +73,8 @@ export function Call({ lang, onResults }) {
     setStatus('thinking');
     const r = await handleUtterance(conv.current, text, lang);
     conv.current = r.conv;
-    if (r.summary) {
-      onResults?.(r);
-      await say(`${callResultsSpeech(r.summary, r.conv.profile, lang)} ${t('call.again', lang)}`);
-    } else {
-      await say(r.message.speech);
-    }
+    if (r.summary) onResults?.(r);
+    await say(r.summary && !r.conv.suggest ? `${r.message.speech} ${t('call.again', lang)}` : r.message.speech);
     listen();
   }
 
@@ -105,11 +101,13 @@ export function Call({ lang, onResults }) {
   };
 
   const live = status !== 'idle' && status !== 'ended';
-  const simLines = conv.current.awaiting === 'age'
-    ? [lang === 'hi' ? '45 साल' : '45', lang === 'hi' ? 'पता नहीं' : "Don't know"]
-    : conv.current.awaiting
-      ? [lang === 'hi' ? 'पता नहीं' : "Don't know"]
-      : [...EXAMPLES[lang], 'bye'];
+  const sugg = conv.current.suggest;
+  const simLines = [
+    ...(sugg === 'age' ? [lang === 'hi' ? '45 साल' : '45'] : sugg === 'childOrder' ? [lang === 'hi' ? 'पहला बच्चा' : 'First child'] : []),
+    ...EXAMPLES[lang],
+    lang === 'hi' ? 'मेरी बेटी हुई है' : 'I just had a daughter',
+    'bye',
+  ];
 
   return (
     <main className="mx-auto flex h-[calc(100dvh-73px)] min-h-[560px] max-w-md flex-col bg-brand px-4 pb-6 pt-4 text-white">

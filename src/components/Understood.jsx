@@ -9,7 +9,9 @@ const L = (lang, en, hi) => (lang === 'hi' ? hi : en);
 function situationText(p, lang) {
   const out = [];
   if (p.pregnant) out.push(L(lang, 'Pregnant', 'गर्भवती'));
-  if (p.pregnant && p.childOrder) out.push(CHILD_ORDER[p.childOrder][lang]);
+  if ((p.pregnant || p.recentBirth) && p.childOrder) out.push(CHILD_ORDER[p.childOrder][lang]);
+  if (p.recentBirth) out.push(L(lang, 'New baby', 'नया बच्चा'));
+  if (p.hasDaughter) out.push(p.daughterAge !== undefined && p.daughterAge > 0 ? L(lang, `Daughter, ${p.daughterAge} years`, `बेटी, ${p.daughterAge} साल`) : p.recentBirth ? L(lang, 'Newborn daughter', 'नवजात बेटी') : L(lang, 'Has a daughter', 'बेटी है'));
   if (p.widow) out.push(L(lang, 'Widow', 'विधवा'));
   if (p.migrant && p.homeState) out.push(L(lang, `From ${STATES[p.homeState]?.en}`, `${STATES[p.homeState]?.hi} से`));
   else if (p.migrant) out.push(L(lang, 'Working away from home', 'घर से दूर काम'));
@@ -38,9 +40,20 @@ export function understoodLine(p, lang) {
   return chipList(p, lang).filter((c) => c.text).map((c) => c.text).join(', ');
 }
 
-export function UnderstoodCard({ profile, lang, onChange, editable = true, compact = false }) {
+export function UnderstoodCard({ profile, lang, onChange, editable = true, compact = false, collapsible = false }) {
   const [editing, setEditing] = useState(null);
+  const [open, setOpen] = useState(!collapsible);
   const chips = chipList(profile, lang);
+  const line = understoodLine(profile, lang);
+  if (!open) {
+    if (!line) return null;
+    return (
+      <button type="button" onClick={() => setOpen(true)} className="flex min-h-tap w-full items-center gap-2 rounded-2xl border border-dashed border-line bg-white/60 px-4 py-2 text-left text-small text-muted">
+        <span className="flex-1"><span className="font-semibold text-ink">{t('understoodShort', lang)}:</span> {line}</span>
+        <span className="flex items-center gap-1 font-semibold text-brand"><Pencil size={14} aria-hidden="true" /> {t('edit', lang)}</span>
+      </button>
+    );
+  }
   return (
     <section aria-label={t('understood', lang)} className={`rounded-3xl border border-line bg-white ${compact ? 'p-3' : 'p-4'}`}>
       <h3 className="text-small font-semibold uppercase tracking-wide text-muted">{t('understood', lang)}</h3>
@@ -115,6 +128,7 @@ export function FieldSheet({ field, profile, lang, onSave, onClose }) {
   const [acres, setAcres] = useState(profile.landAcres ?? 1);
   const [sit, setSit] = useState({
     pregnant: !!profile.pregnant, childOrder: profile.childOrder, widow: !!profile.widow,
+    recentBirth: !!profile.recentBirth, hasDaughter: !!profile.hasDaughter,
     migrant: !!profile.migrant, hasRationCard: profile.hasRationCard, epf: !!profile.epf, taxPayer: !!profile.taxPayer,
   });
   const clear = (keys) => onSave(Object.fromEntries(keys.map((k) => [k, undefined])));
@@ -171,13 +185,15 @@ export function FieldSheet({ field, profile, lang, onSave, onClose }) {
     const toggle = (k) => setSit((s) => ({ ...s, [k]: !s[k] }));
     body = <div className="grid gap-2">
       <OptionButton selected={sit.pregnant} onClick={() => toggle('pregnant')}>{L(lang, 'Pregnant', 'गर्भवती')}</OptionButton>
-      {sit.pregnant && (
+      {(sit.pregnant || sit.recentBirth) && (
         <div className="grid grid-cols-3 gap-2 pl-4">
           {[1, 2, 3].map((n) => (
             <OptionButton key={n} selected={sit.childOrder === n} onClick={() => setSit((s) => ({ ...s, childOrder: n }))}>{CHILD_ORDER[n][lang]}</OptionButton>
           ))}
         </div>
       )}
+      <OptionButton selected={sit.recentBirth} onClick={() => toggle('recentBirth')}>{L(lang, 'New baby in the family', 'परिवार में नया बच्चा')}</OptionButton>
+      <OptionButton selected={sit.hasDaughter} onClick={() => toggle('hasDaughter')}>{L(lang, 'Has a daughter below 10', '10 साल से छोटी बेटी है')}</OptionButton>
       <OptionButton selected={sit.widow} onClick={() => toggle('widow')}>{L(lang, 'Widow', 'विधवा')}</OptionButton>
       <OptionButton selected={sit.migrant} onClick={() => toggle('migrant')}>{L(lang, 'Working away from home state', 'अपने राज्य से बाहर काम')}</OptionButton>
       <OptionButton selected={sit.hasRationCard === true} onClick={() => setSit((s) => ({ ...s, hasRationCard: s.hasRationCard === true ? undefined : true }))}>{L(lang, 'Has a ration card', 'राशन कार्ड है')}</OptionButton>
@@ -186,7 +202,9 @@ export function FieldSheet({ field, profile, lang, onSave, onClose }) {
       <Primary onClick={() => onSave({
         ...sit,
         gender: sit.pregnant || sit.widow ? 'female' : profile.gender,
-        childOrder: sit.pregnant ? sit.childOrder : undefined,
+        childOrder: sit.pregnant || sit.recentBirth ? sit.childOrder : undefined,
+        daughterAge: sit.hasDaughter ? (profile.daughterAge ?? (sit.recentBirth ? 0 : undefined)) : undefined,
+        girlChild: sit.hasDaughter && sit.recentBirth ? true : profile.girlChild,
         homeState: sit.migrant ? profile.homeState : profile.state,
       })}>{t('done', lang)}</Primary>
     </div>;

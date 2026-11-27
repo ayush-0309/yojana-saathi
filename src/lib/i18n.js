@@ -14,11 +14,15 @@ export const UI = {
   trySaying: { en: 'Or tap the mic and say, for example', hi: 'या माइक दबाकर ऐसे बोलिए' },
   whoFor: { en: 'Who are we finding schemes for?', hi: 'किसके लिए योजना ढूँढनी है?' },
   hello: { en: 'Namaste!', hi: 'नमस्ते!' },
-  intro: { en: 'Tap a picture below, or press the big mic and tell me about yourself. I will find government schemes that fit.', hi: 'नीचे कोई तस्वीर दबाइए, या बड़ा माइक दबाकर अपने बारे में बताइए। मैं आपके काम की सरकारी योजनाएँ ढूँढूँगा।' },
+  intro: { en: 'Just tell me in your own words what is happening in your life, or what help you need. For example: "I just had a daughter" or "I need help with hospital costs".', hi: 'बस अपने शब्दों में बताइए कि आपके साथ क्या हो रहा है, या कैसी मदद चाहिए। जैसे: "मेरी बेटी हुई है" या "इलाज के लिए मदद चाहिए"।' },
   askAbout: { en: 'Ask about a scheme', hi: 'किसी योजना के बारे में पूछें' },
   browseAll: { en: 'See all schemes', hi: 'सभी योजनाएँ देखें' },
   allSchemes: { en: 'All schemes', hi: 'सभी योजनाएँ' },
   fullDetails: { en: 'See full details', hi: 'पूरी जानकारी देखें' },
+  seeAll: { en: 'See all with total', hi: 'सब देखें, कुल रकम के साथ' },
+  notNow: { en: 'Not now', hi: 'रहने दें' },
+  edit: { en: 'Change', hi: 'बदलें' },
+  understoodShort: { en: 'I understood', hi: 'मैंने समझा' },
   browseIntro: { en: 'Every scheme this helper checks. Tap one to see who can get it, documents and how to apply.', hi: 'यह सहायक इन योजनाओं को देखता है। किसी पर दबाकर देखें — किसे मिलेगी, कागज़ और आवेदन कैसे करें।' },
   typeHere: { en: 'Type what you want to say', hi: 'जो कहना है, यहाँ लिखें' },
   send: { en: 'Send', hi: 'भेजें' },
@@ -110,10 +114,12 @@ export const UI = {
 };
 
 export const PERSONAS = [
-  { id: 'farmer', icon: 'farming', delta: { occupation: 'farmer' }, en: 'Farmer', hi: 'किसान', sub: { en: 'I grow crops', hi: 'खेती करते हैं' } },
-  { id: 'elder', icon: 'elder', delta: { age: { min: 60, max: 110 } }, en: 'Elderly', hi: 'बुज़ुर्ग', sub: { en: '60 years or older', hi: '60 साल या ज़्यादा' } },
-  { id: 'worker', icon: 'worker', delta: { occupation: 'labourer' }, en: 'Worker', hi: 'मज़दूर', sub: { en: 'Daily wage, building, domestic work', hi: 'दिहाड़ी, निर्माण, घरेलू काम' } },
+  { id: 'farmer', icon: 'farming', delta: { occupation: 'farmer' }, topics: ['farming'], en: 'Farmer', hi: 'किसान', sub: { en: 'I grow crops', hi: 'खेती करते हैं' } },
+  { id: 'elder', icon: 'elder', delta: { age: { min: 60, max: 110 } }, topics: ['elder'], en: 'Elderly', hi: 'बुज़ुर्ग', sub: { en: '60 years or older', hi: '60 साल या ज़्यादा' } },
+  { id: 'worker', icon: 'worker', delta: { occupation: 'labourer' }, topics: ['worker'], en: 'Worker', hi: 'मज़दूर', sub: { en: 'Daily wage, building, domestic work', hi: 'दिहाड़ी, निर्माण, घरेलू काम' } },
   { id: 'mother', icon: 'mother', delta: { pregnant: true, gender: 'female' }, en: 'Pregnant woman', hi: 'गर्भवती महिला', sub: { en: 'Expecting a baby', hi: 'माँ बनने वाली' } },
+  { id: 'daughter', icon: 'savings', delta: { hasDaughter: true }, topics: ['girl'], en: 'For a daughter', hi: 'बेटी के लिए', sub: { en: 'Savings for her future', hi: 'बेटी के भविष्य की योजना' } },
+  { id: 'health', icon: 'health', delta: {}, topics: ['health', 'insurance'], en: 'Treatment & insurance', hi: 'इलाज और बीमा', sub: { en: 'Hospital, accident, life cover', hi: 'अस्पताल, दुर्घटना, जीवन बीमा' } },
 ];
 
 export const t = (key, lang) => {
@@ -223,4 +229,61 @@ export function callResultsSpeech(sum, p, lang) {
   const checkHead = lang === 'hi' ? 'एक बात पक्की करनी है — ' : 'One thing to check — ';
   const free = lang === 'hi' ? 'आवेदन मुफ़्त है, किसी एजेंट की ज़रूरत नहीं।' : 'Applying is free; you do not need an agent.';
   return [head, ...lines, checks.length ? checkHead + checks.join('. ') + '.' : '', free].filter(Boolean).join(' ');
+}
+
+// ---------- conversational replies ----------
+export const AGE_CHOICES = [
+  { value: { min: 1, max: 17 }, en: 'Below 18', hi: '18 से कम' },
+  { value: { min: 18, max: 40 }, en: '18 – 40', hi: '18 – 40' },
+  { value: { min: 41, max: 50 }, en: '41 – 50', hi: '41 – 50' },
+  { value: { min: 51, max: 59 }, en: '51 – 59', hi: '51 – 59' },
+  { value: { min: 60, max: 69 }, en: '60 – 69', hi: '60 – 69' },
+  { value: { min: 70, max: 110 }, en: '70 or more', hi: '70 या ज़्यादा' },
+];
+
+export function openerText(p, lang) {
+  if (p.recentBirth && p.girlChild) return lang === 'hi' ? 'बेटी के जन्म की बहुत बधाई!' : 'Congratulations on your daughter!';
+  if (p.recentBirth) return lang === 'hi' ? 'नए बच्चे की बहुत बधाई!' : 'Congratulations on the new baby!';
+  if (p.pregnant) return lang === 'hi' ? 'बधाई हो!' : 'Congratulations!';
+  return '';
+}
+
+/** Gentle, optional follow-up: says why, never blocks. */
+export function softAsk(field, p, lang) {
+  const why = {
+    age: { en: 'insurance and pension schemes depend on it', hi: 'बीमा और पेंशन की योजनाएँ इसी से तय होती हैं' },
+    childOrder: { en: 'the amount depends on it', hi: 'पैसा इसी से तय होता है' },
+    incomeMonthly: { en: 'some schemes have an income limit', hi: 'कुछ योजनाओं में कमाई की सीमा है' },
+    hasLand: { en: 'PM-KISAN needs land in the family name', hi: 'पीएम-किसान के लिए परिवार के नाम ज़मीन चाहिए' },
+  }[field];
+  const q = questionText(field, p, lang);
+  return lang === 'hi' ? `अगर बताना चाहें: ${q} (${why.hi})` : `If you like, tell me: ${q} (${why.en})`;
+}
+
+export function conversationalReply(sum, p, lang) {
+  const self = !p.subject || p.subject === 'self';
+  const n = sum.eligible.length;
+  const c = sum.check.length;
+  const opener = openerText(p, lang);
+  const forWho = self ? '' : lang === 'hi' ? `${subj(p).rel.hi} के लिए: ` : `For your ${subj(p).rel.en}: `;
+  const top = [...sum.eligible, ...sum.check].slice(0, 4);
+  const spokenList = top.map((r) => `${r.scheme.title[lang]} — ${r.benefit.spoken[lang]}`).join('. ');
+  const money = moneyLine(sum, lang);
+  let text;
+  let speech;
+  if (!n && !c) {
+    text = lang === 'hi'
+      ? 'मेरी सूची की कोई योजना अभी मेल नहीं खाई। थोड़ा और बताइए — जैसे आप क्या काम करते हैं, किस राज्य में रहते हैं, या किस चीज़ में मदद चाहिए (बीमा, पेंशन, इलाज, बेटी, खेती)।'
+      : 'No scheme from my list fits yet. Tell me a little more — your work, your state, or what you need help with (insurance, pension, treatment, daughter, farming).';
+    speech = text;
+  } else if (lang === 'hi') {
+    text = `${opener ? opener + ' ' : ''}${forWho}ये योजनाएँ काम आ सकती हैं:`;
+    if (money && n) text += ` (कुल ${money})`;
+    speech = `${opener ? opener + ' ' : ''}${forWho}${spokenList}।${c ? ' कुछ में एक बात पक्की करनी है।' : ''} आवेदन मुफ़्त है।`;
+  } else {
+    text = `${opener ? opener + ' ' : ''}${forWho}These schemes can help:`;
+    if (money && n) text += ` (together ${money})`;
+    speech = `${opener ? opener + ' ' : ''}${forWho}${spokenList}.${c ? ' Some need one thing checked.' : ''} Applying is free.`;
+  }
+  return { text, speech };
 }

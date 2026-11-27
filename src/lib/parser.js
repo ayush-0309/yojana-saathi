@@ -237,12 +237,36 @@ const SUBJECT_GENDER = { mother: 'female', grandmother: 'female', wife: 'female'
 
 const WIDOW = N(['विधवा', 'vidhwa', 'vidhva', 'widow', 'widowed', 'पति नहीं रहे', 'pati nahi rahe', 'pati ki maut', 'पति की मौत', 'पति की मृत्यु', 'husband died', 'husband passed', 'lost my husband', 'husband is no more']);
 const PREGNANT = N(['गर्भवती', 'गर्भ', 'garbhvati', 'garbhwati', 'pregnant', 'expecting', 'मां बनने', 'मां बनूंगी', 'maa banne', 'ma banne', 'maa banungi', 'be a mother', 'become a mother', 'becoming a mother', 'बच्चा होने', 'baby hone', 'bachcha hone', 'bachha hone', 'baccha hone', 'having a baby', 'baby due', 'बच्चा आने', 'pet se']);
-const CHILD_1 = N(['पहली बार', 'pehli baar', 'pehli bar', 'pahli baar', 'pahli bar', 'first time', 'first child', 'first baby', 'first pregnancy', 'पहला बच्चा', 'pehla bachcha', 'pahla bachcha', 'pehla baccha', 'पहली संतान']);
-const CHILD_2 = N(['दूसरी बार', 'dusri baar', 'doosri baar', 'dusri bar', 'दूसरा बच्चा', 'dusra bachcha', 'doosra bachcha', 'dusra baccha', 'second child', 'second baby', 'second time', 'second pregnancy', 'दूसरी संतान']);
+// A baby already born (not a pregnancy). Checked before PREGNANT.
+const BIRTH = N(['became a mother', 'became a father', 'become a father', 'have become a mother', 'has become a mother', 'just had a baby', 'had a baby', 'had a girl', 'had a boy', 'had a daughter', 'had a son', 'newborn', 'new born', 'new baby', 'baby girl', 'baby boy', 'was born', 'बच्चा हुआ', 'बच्ची हुई', 'बेटी हुई', 'बेटा हुआ', 'बेटी पैदा', 'बेटा पैदा', 'बच्चा पैदा', 'beti hui', 'beta hua', 'baccha hua', 'bachcha hua', 'bacha hua', 'bachi hui', 'bachchi hui', 'beti paida', 'beta paida', 'papa bana', 'papa ban gaya', 'pita bana', 'baap bana', 'पिता बना', 'पापा बना', 'बाप बना', 'मां बनी', 'maa bani', 'father of a', 'father of my', 'delivery hui', 'डिलीवरी हुई', 'प्रसव हुआ', 'नवजात', 'navjat']);
+const FUTURE = N(['going to', 'gonna', 'will be', 'होने वाला', 'होने वाली', 'hone wala', 'hone wali', 'बनने वाला', 'बनने वाली', 'banne wala', 'banne wali', 'expecting']);
+const FATHER_SELF = N(['पिता बन', 'पापा बन', 'बाप बन', 'pita ban', 'papa ban', 'baap ban', 'become a father', 'became a father', 'be a father', 'father of a', 'father of my', 'i am a father', 'i m a father']);
+const DAUGHTER = N(['बेटी', 'बिटिया', 'बच्ची', 'beti', 'bitiya', 'bachi', 'bachchi', 'daughter', 'girl child', 'baby girl', 'कन्या', 'kanya', 'लड़की हुई', 'ladki hui', 'had a girl']);
+const TOPICS = {
+  insurance: N(['bima', 'बीमा', 'insurance', 'insure']),
+  health: N(['ilaj', 'इलाज', 'hospital', 'अस्पताल', 'health', 'बीमारी', 'bimari', 'treatment', 'dawai', 'दवाई', 'दवा', 'operation', 'ऑपरेशन', 'medical']),
+  pension: N(['pension', 'पेंशन', 'budhapa', 'बुढापा', 'old age', 'retirement', 'retire']),
+  loan: N(['loan', 'लोन', 'karz', 'कर्ज', 'karza', 'udhar', 'उधार', 'credit']),
+  ration: N(['ration', 'राशन', 'anaj', 'अनाज', 'gehu', 'गेहूं', 'chawal', 'चावल']),
+  savings: N(['bachat', 'बचत', 'saving', 'savings', 'jama', 'जमा']),
+  elder: N(['बुजुर्ग', 'buzurg', 'bujurg', 'elderly', 'senior citizen', 'old people', 'वृद्ध']),
+};
+
+/** Kinds of help the person is asking about (insurance, pension…), separate from facts about them. */
+export function detectTopics(text) {
+  const tokens = numberise(norm(text).split(' '));
+  const out = Object.entries(TOPICS).filter(([, list]) => findAny(tokens, list)).map(([k]) => k);
+  if (findAny(tokens, DAUGHTER)) out.push('girl');
+  if (findAny(tokens, BIRTH)) out.push('baby');
+  return out;
+}
+
+const CHILD_1 = N(['पहली बेटी', 'pehli beti', 'first daughter', 'पहली बार', 'pehli baar', 'pehli bar', 'pahli baar', 'pahli bar', 'first time', 'first child', 'first baby', 'first pregnancy', 'पहला बच्चा', 'pehla bachcha', 'pahla bachcha', 'pehla baccha', 'पहली संतान']);
+const CHILD_2 = N(['दूसरी बेटी', 'dusri beti', 'doosri beti', 'second daughter', 'दूसरी बार', 'dusri baar', 'doosri baar', 'dusri bar', 'दूसरा बच्चा', 'dusra bachcha', 'doosra bachcha', 'dusra baccha', 'second child', 'second baby', 'second time', 'second pregnancy', 'दूसरी संतान']);
 const CHILD_3 = N(['तीसरा बच्चा', 'तीसरी बार', 'teesra bachcha', 'teesri baar', 'third child', 'third baby', 'third time']);
 const MIGRANT = N(['migrant', 'प्रवासी', 'pravasi', 'pravaasi', 'दूसरे राज्य', 'doosre rajya', 'dusre rajya', 'other state', 'another state', 'outside my state']);
-const FEMALE = N(['महिला', 'औरत', 'aurat', 'mahila', 'woman', 'lady', 'female', 'स्त्री', 'girl', 'लड़की', 'ladki']);
-const MALE = N(['आदमी', 'aadmi', 'purush', 'पुरुष', 'male', 'man', 'लड़का', 'ladka', 'boy']);
+const FEMALE = N(['महिला', 'औरत', 'aurat', 'mahila', 'woman', 'lady', 'female', 'स्त्री']);
+const MALE = N(['आदमी', 'aadmi', 'purush', 'पुरुष', 'male', 'man']);
 const RATION = N(['ration card', 'राशन कार्ड', 'rashan card', 'ration']);
 const EPF = N(['epf', 'pf', 'पीएफ', 'esic', 'esi', 'provident fund']);
 const TAX = N(['income tax', 'इनकम टैक्स', 'आयकर', 'tax', 'टैक्स']);
@@ -283,10 +307,21 @@ export function parseUtterance(text, opts = {}) {
   }
 
   // situations
-  if (findAny(tokens, PREGNANT)) { p.pregnant = true; p.gender = 'female'; }
+  const birth = findAny(tokens, BIRTH);
+  const future = findAny(tokens, FUTURE);
+  const fatherSelf = findAny(tokens, FATHER_SELF);
+  if (birth && !future) { p.recentBirth = true; }
+  else if (findAny(tokens, PREGNANT) || (fatherSelf && future)) { p.pregnant = true; }
+  if (fatherSelf && !p.subject) p.gender = 'male';
+  else if (!p.subject && !fatherSelf && (p.pregnant || findAny(tokens, N(['मां बनी', 'maa bani', 'became a mother', 'become a mother', 'meri delivery', 'मेरी डिलीवरी'])))) p.gender = 'female';
+  const daughterHit = findAny(tokens, DAUGHTER);
+  if (daughterHit) {
+    p.hasDaughter = true;
+    if (p.recentBirth) { p.girlChild = true; p.daughterAge = 0; }
+  }
   if (findAny(tokens, CHILD_3)) p.childOrder = 3;
   else if (findAny(tokens, CHILD_2)) p.childOrder = 2;
-  else if (findAny(tokens, CHILD_1) && (p.pregnant || findAny(tokens, N(['child', 'baby', 'bachcha', 'बच्चा', 'मां', 'maa', 'mother'])))) p.childOrder = 1;
+  else if (findAny(tokens, CHILD_1) && (p.pregnant || p.recentBirth || findAny(tokens, N(['child', 'baby', 'bachcha', 'बच्चा', 'मां', 'maa', 'mother'])))) p.childOrder = 1;
 
   // gender from self-description and Hindi verb endings
   if (!p.gender) {
@@ -333,7 +368,11 @@ export function parseUtterance(text, opts = {}) {
       const ageUnit = AGE_UNITS.has(next) && !DURATION_AFTER.has(tokens[i + 2]) && !DURATION_BEFORE.has(prev) && !MONEY_WORDS.has(tokens[i + 2]);
       const ageWord = AGE_BEFORE.has(prev) && !MONEY_WORDS.has(next) && !MULT[next] && !YEAR_WORDS.has(next) && !MONTH_WORDS.has(next);
       const kaHoon = KA_KI.has(next) && HOON.has(tokens[i + 2]);
-      if (ageUnit || ageWord || kaHoon) { p.age = v; used.add(i); return; }
+      if (ageUnit || ageWord || kaHoon) {
+        // "मेरी बेटी 5 साल की है" — the number belongs to the daughter
+        if (daughterHit && i > daughterHit.i && i - daughterHit.i <= 3) { p.daughterAge = v; used.add(i); return; }
+        p.age = v; used.add(i); return;
+      }
     }
   });
 

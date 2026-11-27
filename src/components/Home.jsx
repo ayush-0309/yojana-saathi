@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Mic, Square, ClipboardList, Phone, Send, Keyboard, RotateCcw, ArrowRight, LayoutGrid, MessageCircleQuestion, Quote } from 'lucide-react';
-import { t, EXAMPLES, PERSONAS } from '../lib/i18n.js';
+import { t, EXAMPLES, PERSONAS, AGE_CHOICES } from '../lib/i18n.js';
+import { evaluateAll, selectShown } from '../lib/engine.js';
+import { SchemeRow } from './Results.jsx';
 import { QUESTION_EXAMPLES } from '../lib/qa.js';
 import { INCOME_CHOICES, CHILD_ORDER } from '../lib/labels.js';
 import { canListen } from '../lib/speech.js';
 import { ReadAloudButton, CategoryIcon } from './ui.jsx';
-import { UnderstoodCard, Stepper } from './Understood.jsx';
+import { UnderstoodCard } from './Understood.jsx';
 
 export function MicButton({ listening, onClick, lang, size = 84 }) {
   return (
@@ -62,53 +64,56 @@ function BotAvatar() {
   );
 }
 
-function AnswerPanel({ field, lang, onAnswer, profile }) {
-  const start = typeof profile?.age === 'object' && profile.age ? profile.age.min + 5 : 40;
-  const [age, setAge] = useState(start);
-  const chip = 'min-h-tap rounded-2xl border-2 border-brand bg-white px-4 py-2 text-left font-semibold text-brand';
-  const skip = <button type="button" className="min-h-tap rounded-2xl px-4 font-semibold text-muted underline" onClick={() => onAnswer('__skip', t('dontKnow', lang))}>{t('dontKnow', lang)}</button>;
-  if (field === 'age') {
-    return (
-      <div className="mt-3 rounded-2xl bg-paper p-2">
-        <Stepper value={age} onChange={setAge} min={1} max={110} unit={lang === 'hi' ? 'साल' : 'years'} lang={lang} />
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <button type="button" className="min-h-tap flex-1 rounded-2xl bg-brand px-4 font-semibold text-white" onClick={() => onAnswer(age, lang === 'hi' ? `${age} साल` : `${age} years`)}>{t('done', lang)}</button>
-          {skip}
-        </div>
-      </div>
-    );
-  }
+/** Optional follow-up: one tap answers, or ignore it and just keep talking. */
+function SoftAsk({ m, lang, onAnswer }) {
+  const field = m.suggest;
   let options = [];
+  if (field === 'age') options = AGE_CHOICES.map((c) => ({ value: c.value, label: c[lang] }));
   if (field === 'incomeMonthly') options = INCOME_CHOICES.map((c) => ({ value: c.value, label: c[lang] }));
   if (field === 'childOrder') options = [1, 2, 3].map((n) => ({ value: n, label: CHILD_ORDER[n][lang] }));
   if (field === 'hasLand') options = [{ value: true, label: lang === 'hi' ? 'हाँ' : 'Yes' }, { value: false, label: lang === 'hi' ? 'नहीं' : 'No' }];
+  const unit = field === 'age' ? (lang === 'hi' ? ' साल' : ' years') : '';
   return (
-    <div className="mt-3 flex flex-wrap gap-2">
-      {options.map((o) => <button key={o.label} type="button" className={chip} onClick={() => onAnswer(o.value, o.label)}>{o.label}</button>)}
-      {skip}
+    <div className="ml-11 rounded-3xl border border-line bg-brand-soft/60 px-4 py-3">
+      <p className="text-ink">{m.suggestText}</p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {options.map((o) => (
+          <button key={o.label} type="button" className="min-h-tap rounded-2xl border-2 border-brand bg-white px-4 py-1 font-semibold text-brand" onClick={() => onAnswer(o.value, o.label + unit)}>
+            {o.label}
+          </button>
+        ))}
+        <button type="button" className="min-h-tap rounded-2xl px-3 font-semibold text-muted underline" onClick={() => onAnswer('__skip', t('notNow', lang))}>{t('notNow', lang)}</button>
+      </div>
+    </div>
+  );
+}
+
+/** Scheme cards inside the chat, computed from the message's snapshot. */
+function ChatResults({ m, lang, onOpenScheme, onSeeResults }) {
+  const shown = selectShown(evaluateAll(m.understood, m.topics));
+  if (!shown.length) return null;
+  const first = shown.slice(0, 4);
+  return (
+    <div className="ml-11 space-y-2">
+      <ul className="space-y-2">{first.map((r) => <SchemeRow key={r.scheme.id} r={r} profile={m.understood} lang={lang} onOpen={onOpenScheme} />)}</ul>
+      <button type="button" onClick={onSeeResults} className="flex min-h-tap w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 font-semibold text-white">
+        {shown.length > first.length ? `${t('seeAll', lang)} (${shown.length})` : t('seeAll', lang)} <ArrowRight size={20} aria-hidden="true" />
+      </button>
     </div>
   );
 }
 
 function BotBubble({ m, lang, latest, onAnswer, onEdit, onSeeResults, onOpenScheme, onBrowse }) {
-  const wide = m.ask && latest;
   const action = 'mt-3 flex min-h-tap w-full items-center justify-center gap-2 rounded-2xl px-4 font-semibold';
   return (
     <li className="flex flex-col gap-2">
       <div className="flex items-start gap-2">
         <BotAvatar />
-        <div className={`${wide ? 'flex-1' : 'max-w-[85%]'} min-w-0 rounded-3xl rounded-tl-md border border-line bg-white px-4 py-3 text-ink`}>
+        <div className="min-w-0 max-w-[85%] rounded-3xl rounded-tl-md border border-line bg-white px-4 py-3 text-ink">
           <div className="flex items-start gap-1">
             <p className="flex-1 whitespace-pre-line">{m.text}</p>
             <ReadAloudButton text={m.speech || m.text} lang={lang} className="-mr-2 -mt-2" />
           </div>
-          {m.ask && latest && <p className="text-small text-muted">{t('whyAsk', lang)}</p>}
-          {m.ask && latest && <AnswerPanel field={m.ask} lang={lang} onAnswer={onAnswer} profile={m.understood} />}
-          {m.results && (
-            <button type="button" onClick={onSeeResults} className={`${action} bg-brand text-white`}>
-              {t('seeResults', lang)} <ArrowRight size={20} aria-hidden="true" />
-            </button>
-          )}
           {m.scheme && (
             <button type="button" onClick={() => onOpenScheme(m.scheme)} className={`${action} border-2 border-brand text-brand`}>
               {t('fullDetails', lang)} <ArrowRight size={20} aria-hidden="true" />
@@ -121,7 +126,9 @@ function BotBubble({ m, lang, latest, onAnswer, onEdit, onSeeResults, onOpenSche
           )}
         </div>
       </div>
-      {m.understood && latest && <div className="w-full"><UnderstoodCard profile={m.understood} lang={lang} onChange={onEdit} /></div>}
+      {m.cards && <ChatResults m={m} lang={lang} onOpenScheme={onOpenScheme} onSeeResults={onSeeResults} />}
+      {m.suggest && latest && <SoftAsk m={m} lang={lang} onAnswer={onAnswer} />}
+      {m.understood && latest && <div className="ml-11"><UnderstoodCard profile={m.understood} lang={lang} onChange={onEdit} collapsible /></div>}
     </li>
   );
 }
@@ -146,7 +153,7 @@ function Welcome({ lang, onPersona, onSend, onBrowse }) {
               <button
                 type="button"
                 onClick={() => onPersona(p)}
-                className="flex h-full min-h-[132px] w-full flex-col items-start gap-2 rounded-3xl border-2 border-line bg-white p-4 text-left transition-colors hover:border-brand focus-visible:border-brand"
+                className="flex h-full min-h-[124px] w-full flex-col items-start gap-2 rounded-3xl border-2 border-line bg-white p-4 text-left transition-colors hover:border-brand focus-visible:border-brand"
               >
                 <CategoryIcon category={p.icon} size={28} />
                 <span className="text-[19px] font-bold leading-tight text-ink">{p[lang]}</span>
